@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Minus, Send, X } from "lucide-react";
 import { useTour } from "@/ContextosGlobales/TourContext";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 const InteractiveNebulaOrb = dynamic(
   () => import("@/components/ui/InteractiveNebulaOrb").then((module) => module.InteractiveNebulaOrb),
   {
     ssr: false,
-    loading: () => <span className="block h-full w-full rounded-full bg-transparent" />,
+    loading: () => <PantallaCarga />,
   },
 );
 

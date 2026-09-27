@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";

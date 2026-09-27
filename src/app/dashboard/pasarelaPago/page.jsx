@@ -1,4 +1,5 @@
 "use client"
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { CheckCircle2, CreditCard, EyeOff, KeyRound, ShieldCheck, Store, WalletCards } from "lucide-react";
 import {toast, Toaster} from "react-hot-toast";
 import {useEffect, useState} from "react";

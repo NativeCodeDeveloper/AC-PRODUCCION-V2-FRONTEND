@@ -1,6 +1,11 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkLoading, ClerkProvider } from "@clerk/nextjs";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 export default function SignUpLayout({ children }) {
-  return <ClerkProvider>{children}</ClerkProvider>;
+  return (
+    <ClerkProvider>
+      <ClerkLoading><PantallaCarga /></ClerkLoading>
+      {children}
+    </ClerkProvider>
+  );
 }
-

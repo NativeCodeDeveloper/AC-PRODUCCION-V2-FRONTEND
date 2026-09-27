@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, useSignIn } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import NeuralBg from "@/components/NeuralBg";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 /* SF Pro en Apple, Inter/Helvetica en otros */
 const SF = `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", Arial, sans-serif`;
@@ -33,12 +34,7 @@ export default function Page() {
   }, [isAuthLoaded, isSignedIn, router]);
 
   if (!isLoaded || !isAuthLoaded || isSignedIn) {
-    return (
-      <main style={{ background: "#fff", fontFamily: SF }}
-            className="grid min-h-dvh place-items-center">
-        <div className="text-sm text-slate-400">Cargando...</div>
-      </main>
-    );
+    return <PantallaCarga />;
   }
 
   async function handleSubmit(e) {
@@ -68,6 +64,7 @@ export default function Page() {
 
   return (
     <div className="relative min-h-dvh bg-white">
+      {submitting && <PantallaCarga />}
       <div
         className="pointer-events-none absolute inset-0"
         style={{

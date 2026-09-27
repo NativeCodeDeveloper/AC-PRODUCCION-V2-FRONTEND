@@ -1,4 +1,6 @@
 'use client'
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {Suspense, useEffect, useState} from "react";
 import {useSearchParams} from "next/navigation";
 
@@ -242,7 +244,7 @@ function ReservaHoraContent() {
 
 export default function ReservaHora() {
   return (
-    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Cargando...</div>}>
+    <Suspense fallback={<PantallaCarga />}>
       <ReservaHoraContent />
     </Suspense>
   );

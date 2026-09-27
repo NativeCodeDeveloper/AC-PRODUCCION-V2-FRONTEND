@@ -1,4 +1,6 @@
 'use client'
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useState, useEffect} from 'react'
 import BotonVideoTutorial from "@/Componentes/VideoTutorial";
 import {useParams, useRouter} from "next/navigation";
@@ -176,24 +178,7 @@ export default function OdontogramasPaciente() {
 
     /* ── Loading ── */
     if (cargando) {
-        return (
-            <div className="min-h-screen bg-[#FAFAFB] px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-                <ToasterClient/>
-                <div className="max-w-7xl mx-auto">
-                    <div className="animate-pulse space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="h-14 w-14 rounded-2xl bg-slate-200"/>
-                            <div className="space-y-2">
-                                <div className="h-4 w-32 bg-slate-200 rounded"/>
-                                <div className="h-7 w-64 bg-slate-200 rounded-lg"/>
-                            </div>
-                        </div>
-                        <div className="h-28 bg-slate-200 rounded-2xl"/>
-                        <div className="h-96 bg-slate-200 rounded-2xl"/>
-                    </div>
-                </div>
-            </div>
-        );
+        return <PantallaCarga />;
     }
 
     const paciente = dataPaciente.length > 0 ? dataPaciente[0] : null;

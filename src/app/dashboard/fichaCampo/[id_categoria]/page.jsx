@@ -1,5 +1,6 @@
 "use client"
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useEffect, useState} from "react"
 import {useParams, useRouter} from "next/navigation"
 import {toast} from "react-hot-toast"

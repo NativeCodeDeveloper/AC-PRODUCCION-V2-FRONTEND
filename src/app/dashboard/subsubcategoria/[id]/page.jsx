@@ -1,4 +1,5 @@
 "use client";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useParams, useRouter} from "next/navigation";
 import {useState,useEffect} from "react";
 import {ShadcnButton} from "@/Componentes/shadcnButton";

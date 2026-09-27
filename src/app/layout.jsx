@@ -2,6 +2,7 @@ import "./globals.css";
 import { AnimatedLayout } from "@/Componentes/AnimatedLayout";
 import AgendaProvider from "@/ContextosGlobales/AgendaContext";
 import OverlaySinConexion from "@/Componentes/OverlaySinConexion";
+import CargaGlobal from "@/Componentes/CargaGlobal";
 import { Geist, Geist_Mono, Inter, Outfit, Lora } from "next/font/google";
 import Script from "next/script";
 
@@ -115,6 +116,7 @@ export default function RootLayout({ children }) {
         )}
       </head>
         <body className="min-h-screen bg-white">
+        <CargaGlobal />
         <AgendaProvider>
             <AnimatedLayout>
                 {children}

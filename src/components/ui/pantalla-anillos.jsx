@@ -1,4 +1,13 @@
+"use client";
+
+import { useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { iniciarCarga } from "@/lib/cargaGlobal";
 import MagicRings from "@/components/ui/magic-rings";
+
+const suscribirMontaje = () => () => {};
+const obtenerMontaje = () => true;
+const obtenerMontajeServidor = () => false;
 
 // ── Pantallas de anillos (fondo blanco, a pantalla completa) ─────────────────
 // Puesta en escena común para que la pantalla de carga (src/app/loading.jsx),
@@ -16,7 +25,20 @@ const PROPS_ANILLOS = {
 };
 
 export function PantallaCarga({ onClick }) {
-  return (
+  const montada = useSyncExternalStore(suscribirMontaje, obtenerMontaje, obtenerMontajeServidor);
+
+  useEffect(() => {
+    if (!onClick) return iniciarCarga();
+  }, [onClick]);
+
+  // Los fallbacks y peticiones comparten una sola animación en CargaGlobal.
+  // El preview conserva su pantalla independiente y su botón de cierre.
+  return !montada || onClick ? <VistaPantallaCarga onClick={onClick} /> : null;
+}
+
+export function VistaPantallaCarga({ onClick }) {
+  const montada = useSyncExternalStore(suscribirMontaje, obtenerMontaje, obtenerMontajeServidor);
+  const pantalla = (
     <div
       onClick={onClick}
       // z-[90]: sobre el orbe de Cortex (z-[80], se monta en el layout del
@@ -25,6 +47,7 @@ export function PantallaCarga({ onClick }) {
       role="status"
       aria-live="polite"
       aria-label="Cargando Agenda Clínica"
+      aria-busy="true"
     >
       <MagicRings {...PROPS_ANILLOS}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,6 +61,8 @@ export function PantallaCarga({ onClick }) {
       </MagicRings>
     </div>
   );
+
+  return montada ? createPortal(pantalla, document.body) : pantalla;
 }
 
 export function PantallaNoEncontrada({ onClick }) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useCallback, useEffect, useState } from "react";
 import {
   CheckCircle2,

@@ -1,4 +1,5 @@
 "use client";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useMemo, useState, useEffect, useRef} from "react";
 import {useAgenda} from "@/ContextosGlobales/AgendaContext";
 import Link from "next/link";

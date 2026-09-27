@@ -29,6 +29,7 @@
  *   - formatFechaLarga: (date) => string
  */
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { StatusBadge } from "@/Componentes/StatusBadge";

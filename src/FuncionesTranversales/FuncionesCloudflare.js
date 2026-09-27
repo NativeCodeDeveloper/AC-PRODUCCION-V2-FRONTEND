@@ -1,3 +1,4 @@
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export async function subirImagenCloudflare(file) {

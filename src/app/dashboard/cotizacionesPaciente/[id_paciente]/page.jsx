@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useEffect, useState} from "react";
 import { previsionDesdeId } from "@/lib/previsiones";
 import {useParams, useRouter} from "next/navigation";

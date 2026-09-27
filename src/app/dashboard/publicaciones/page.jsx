@@ -1,5 +1,6 @@
 "use client"
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, {useEffect, useRef, useState} from "react";
 import {toast, Toaster} from "react-hot-toast";
 import {InfoButton} from "@/Componentes/InfoButton";

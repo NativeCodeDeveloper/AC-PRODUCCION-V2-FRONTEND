@@ -1,4 +1,5 @@
 'use client'
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, {useState, useEffect, useMemo} from "react";
 import BotonVideoTutorial from "@/Componentes/VideoTutorial";
 import TutorialGuiadoPresupuesto from "@/Componentes/TutorialGuiadoPresupuesto";

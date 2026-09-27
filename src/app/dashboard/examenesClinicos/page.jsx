@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ShadcnInput from "@/Componentes/shadcnInput2";

@@ -1,4 +1,6 @@
 'use client'
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useSearchParams} from "next/navigation";
 import ToasterClient from "@/Componentes/ToasterClient";
 import {toast} from "react-hot-toast";
@@ -405,7 +407,7 @@ function PedidoDetalleInner(){
 
 export default function PedidoDetalle() {
     return (
-        <Suspense fallback={<div className="p-4">Cargando detalle del pedido...</div>}>
+        <Suspense fallback={<PantallaCarga />}>
             <PedidoDetalleInner />
         </Suspense>
     );

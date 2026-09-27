@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 export default function CarruselProducto({ imagenes, imagen1, imagen2, imagen3, imagen4 }) {
     // Permitir recibir hasta 4 props individuales o un array
@@ -80,7 +81,8 @@ export default function CarruselProducto({ imagenes, imagen1, imagen2, imagen3, 
     };
 
     // Esperamos validación; si no hay imágenes válidas, no renderizamos
-    if (cargando || !imagenesOk.length) return null;
+    if (cargando) return <PantallaCarga />;
+    if (!imagenesOk.length) return null;
 
     // Solo mostrar miniaturas disponibles
     const thumbs = imagenesOk;

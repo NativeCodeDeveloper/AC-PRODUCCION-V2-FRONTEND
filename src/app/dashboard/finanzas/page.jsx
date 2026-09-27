@@ -1,5 +1,6 @@
 "use client"
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";

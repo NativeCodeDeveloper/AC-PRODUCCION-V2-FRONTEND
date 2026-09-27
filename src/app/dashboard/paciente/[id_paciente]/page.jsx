@@ -1,4 +1,5 @@
 "use client"
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useParams, useSearchParams} from "next/navigation";
 import { claveFechaCivil } from "@/lib/fechas";
 import { NOMBRES_PREVISION, previsionDesdeId, previsionIdDesdeNombre } from "@/lib/previsiones";

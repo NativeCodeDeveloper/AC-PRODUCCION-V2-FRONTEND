@@ -1,4 +1,5 @@
 'use client'
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import CarruselOfertas from "@/Componentes/CarruselOfertas";
 import Link from "next/link";
 import { useEffect, useState } from "react";

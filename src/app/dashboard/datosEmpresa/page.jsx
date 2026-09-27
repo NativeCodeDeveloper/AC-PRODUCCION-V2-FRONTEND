@@ -1,4 +1,6 @@
 'use client'
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import ToasterClient from "@/Componentes/ToasterClient";
@@ -156,11 +158,7 @@ export default function DatosEmpresa() {
     const labelClass = "text-sm font-medium text-slate-700";
 
     if (cargandoInicial) {
-        return (
-            <div className="min-h-screen bg-[#FAFAFB] flex items-center justify-center">
-                <p className="text-sm text-slate-400">Cargando datos...</p>
-            </div>
-        );
+        return <PantallaCarga />;
     }
 
     return (

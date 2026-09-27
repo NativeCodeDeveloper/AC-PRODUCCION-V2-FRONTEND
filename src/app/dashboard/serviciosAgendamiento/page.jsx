@@ -1,4 +1,5 @@
 'use client'
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { InputTextDinamic } from "@/Componentes/InputTextDinamic";

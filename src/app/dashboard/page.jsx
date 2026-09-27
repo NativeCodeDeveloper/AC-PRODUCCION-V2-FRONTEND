@@ -1,4 +1,5 @@
 "use client"
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useState, useEffect} from "react";
 import ShadcnInput from "@/Componentes/shadcnInput2";
 import ToasterClient from "@/Componentes/ToasterClient";

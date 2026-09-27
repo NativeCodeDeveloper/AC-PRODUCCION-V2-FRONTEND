@@ -1,4 +1,5 @@
 "use client"
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {ShadcnButton} from "@/Componentes/shadcnButton";
 import {ShadcnInput} from "@/Componentes/shadcnInput";
 import {Textarea} from "@/components/ui/textarea";

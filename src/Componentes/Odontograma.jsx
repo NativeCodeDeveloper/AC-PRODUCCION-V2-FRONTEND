@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState, useCallback, useEffect, useImperativeHandle, forwardRef } from "react";
 import { toast } from "react-hot-toast";
 

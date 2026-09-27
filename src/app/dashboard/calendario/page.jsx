@@ -1,5 +1,7 @@
 "use client"
 
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -49,7 +51,7 @@ function normalizarCorreoOpcional(valor) {
 
 export default function Calendario() {
     return (
-        <Suspense fallback={<div className="min-h-screen grid place-items-center"><span className="text-sm text-slate-400">Cargando calendario...</span></div>}>
+        <Suspense fallback={<PantallaCarga />}>
             <CalendarioContent />
         </Suspense>
     );

@@ -1,5 +1,6 @@
 // Autofill de datos de paciente por RUT — reusa /pacientes/contieneRut,
 // el mismo endpoint que ya usan calendario, listaPacientes y GestionPaciente.
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { cleanRut } from "@/lib/designTokens";
 
 const API = () => process.env.NEXT_PUBLIC_API_URL;

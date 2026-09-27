@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useUser, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState, useEffect } from "react";

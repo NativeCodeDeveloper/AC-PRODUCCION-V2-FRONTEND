@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useEffect, useMemo, useRef, useState} from "react";
 import { useProfesionales } from "@/hooks/useProfesionales";
 import { profesionalPorNombre, datosProfesionalParaDocumento } from "@/lib/profesional";

@@ -1,5 +1,6 @@
 "use client"
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useState, useMemo, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {Calendar, dateFnsLocalizer} from "react-big-calendar";

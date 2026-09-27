@@ -9,6 +9,7 @@
 // leer una plantilla y de armar los datos enriquecidos es una sola para crear
 // y para editar.
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import ModalBase from "@/Componentes/ModalBase";

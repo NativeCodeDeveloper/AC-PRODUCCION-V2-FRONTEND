@@ -5,7 +5,8 @@
 // archivo para referencia y mantenimiento futuro.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkLoading, ClerkProvider } from "@clerk/nextjs";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 import MobileNav from "./MobileNav";
 import SidebarNav from "./SidebarNav";
 import RegistroAcceso from "./RegistroAcceso";
@@ -23,6 +24,7 @@ export const metadata = {
 export default function DashboardLayout({ children }) {
     return (
         <ClerkProvider>
+            <ClerkLoading><PantallaCarga /></ClerkLoading>
             {/* Telemetria del Health Score + registro de acceso para proteccion
                 de datos. No renderiza nada. Ver RegistroAcceso.jsx. */}
             <RegistroAcceso />

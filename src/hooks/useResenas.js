@@ -1,4 +1,5 @@
 'use client';
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState, useEffect, useCallback } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;

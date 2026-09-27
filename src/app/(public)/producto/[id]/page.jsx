@@ -1,4 +1,5 @@
 'use client'
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import {useState, useEffect, use} from "react";
 import {useParams} from "next/navigation";
 import {useCarritoGlobal} from "@/ContextosGlobales/CarritoContext";

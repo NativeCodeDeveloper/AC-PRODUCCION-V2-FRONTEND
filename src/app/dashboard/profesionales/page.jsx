@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, { useEffect, useMemo, useState } from 'react';
 import ToasterClient from "@/Componentes/ToasterClient";
 import toast from 'react-hot-toast';

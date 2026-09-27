@@ -13,6 +13,7 @@
  *   - /dashboard/paciente/[id_paciente]      (ficha del paciente)
  */
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Textarea } from "@/components/ui/textarea";

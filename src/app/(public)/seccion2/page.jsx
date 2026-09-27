@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import RevealOnScroll from "@/Componentes/RevealOnScroll";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";

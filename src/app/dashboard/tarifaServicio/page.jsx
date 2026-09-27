@@ -1,4 +1,5 @@
 'use client'
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, { useEffect, useState } from 'react';
 import { InputNumberDinamic } from "@/Componentes/InputNumberDinamic";
 import { ButtonDinamic } from "@/Componentes/ButtonDinamic";

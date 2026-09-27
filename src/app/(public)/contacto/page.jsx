@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Clock3, Facebook, Globe, Instagram, Linkedin, Mail, MapPin, MessageCircle, Send, Twitter, Youtube } from "lucide-react";
