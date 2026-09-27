@@ -1,5 +1,5 @@
-import { Component as AILoader } from "@/components/ui/ai-loader";
+import { PantallaNoEncontrada } from "@/components/ui/pantalla-anillos";
 
 export default function NotFound() {
-  return <AILoader text="404" label="Página no encontrada" size={220} mostrarPorcentaje={false} />;
+  return <PantallaNoEncontrada />;
 }

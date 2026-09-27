@@ -1,5 +1,5 @@
-import { Component as AILoader } from "@/components/ui/ai-loader";
+import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 export default function Loading() {
-  return <AILoader text="Cargando" />;
+  return <PantallaCarga />;
 }

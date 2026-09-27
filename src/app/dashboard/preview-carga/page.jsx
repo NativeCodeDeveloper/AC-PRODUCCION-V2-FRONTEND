@@ -2,18 +2,18 @@
 
 // ── Preview de la pantalla de carga (solo desarrollo) ────────────────────────
 // Sirve para validar el loader sin tener que provocar una carga lenta real.
-// Vive dentro de /dashboard a propósito: así se monta con el sidebar y el
-// contenido reales debajo, y se ve de verdad cómo queda el difuminado.
+// Vive dentro de /dashboard a propósito: así se lanza desde la navegación real
+// de la app. Las pantallas son las mismas que usan src/app/loading.jsx y
+// src/app/not-found.jsx (ver src/components/ui/pantalla-anillos.jsx).
 //
 // En producción esta ruta no existe (ver bloque de guarda más abajo).
 
 import { useState } from "react";
-import { Component as AILoader } from "@/components/ui/ai-loader";
+import { PantallaCarga, PantallaNoEncontrada } from "@/components/ui/pantalla-anillos";
 
 const VARIANTES = [
-    { id: "carga", etiqueta: "Cargando", props: { text: "Cargando" } },
-    { id: "404", etiqueta: "404", props: { text: "404", label: "Página no encontrada", size: 220, mostrarPorcentaje: false } },
-    { id: "chico", etiqueta: "Tamaño 140", props: { text: "Cargando", size: 140 } },
+    { id: "carga", etiqueta: "Cargando", Pantalla: PantallaCarga },
+    { id: "404", etiqueta: "404", Pantalla: PantallaNoEncontrada },
 ];
 
 export default function PreviewCargaPage() {
@@ -29,8 +29,8 @@ export default function PreviewCargaPage() {
                 Preview — pantalla de carga
             </h1>
             <p className="mt-2 max-w-xl text-sm text-[#52565C]">
-                Elige una variante para superponerla. El fondo que ves detrás (sidebar, tarjetas)
-                es el dashboard real, así que el difuminado se aprecia tal cual quedará en uso.
+                Elige una variante para superponerla: los anillos cubren toda la ventana
+                sobre fondo blanco, tal cual quedan en la carga de una página y en el 404.
                 Haz clic en cualquier parte del overlay para cerrarlo.
             </p>
 
@@ -47,7 +47,7 @@ export default function PreviewCargaPage() {
                 ))}
             </div>
 
-            {/* Contenido de relleno para que el difuminado tenga algo que difuminar. */}
+            {/* Contenido de relleno para tener algo detrás al cerrar el overlay. */}
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="rounded-xl border border-[#EAEAEC] bg-white p-5">
@@ -63,11 +63,7 @@ export default function PreviewCargaPage() {
                 ))}
             </div>
 
-            {variante && (
-                <div onClick={() => setActiva(null)} className="cursor-pointer">
-                    <AILoader {...variante.props} />
-                </div>
-            )}
+            {variante && <variante.Pantalla onClick={() => setActiva(null)} />}
         </div>
     );
 }
