@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import {
   getAssignableDashboardRoles,
+  getCreatableDashboardRoles,
   getDashboardRoleLabel,
 } from "@/lib/dashboard-access";
 
@@ -30,9 +31,13 @@ const initialForm = {
   role: "",
 };
 
-const ROLE_OPTIONS = getAssignableDashboardRoles();
-const ROLE_OPTIONS_BY_VALUE = new Map(
-  ROLE_OPTIONS.map((option) => [option.value, option])
+const CREATABLE_ROLE_OPTIONS = getCreatableDashboardRoles();
+const CREATABLE_ROLE_OPTIONS_BY_VALUE = new Map(
+  CREATABLE_ROLE_OPTIONS.map((option) => [option.value, option])
+);
+const EDITABLE_ROLE_OPTIONS = getAssignableDashboardRoles();
+const EDITABLE_ROLE_OPTIONS_BY_VALUE = new Map(
+  EDITABLE_ROLE_OPTIONS.map((option) => [option.value, option])
 );
 
 async function leerRespuesta(response) {
@@ -203,7 +208,7 @@ export default function CreateUserPage() {
   const [listaProfesionales, setListaProfesionales] = useState([]);
   const [errorProfesionales, setErrorProfesionales] = useState("");
 
-  const selectedRoleMeta = ROLE_OPTIONS_BY_VALUE.get(form.role) || null;
+  const selectedRoleMeta = CREATABLE_ROLE_OPTIONS_BY_VALUE.get(form.role) || null;
 
   const cargarUsuarios = useCallback(async () => {
     setCargandoUsuarios(true);
@@ -405,7 +410,7 @@ export default function CreateUserPage() {
   async function actualizarRolUsuario(usuarioId) {
     const role = String(rolesUsuarios[usuarioId] || "");
 
-    if (!ROLE_OPTIONS_BY_VALUE.has(role)) {
+    if (!EDITABLE_ROLE_OPTIONS_BY_VALUE.has(role)) {
       setErrorUsuarios("Selecciona un perfil válido para el usuario.");
       return;
     }
@@ -579,7 +584,7 @@ export default function CreateUserPage() {
                       <option value="" disabled>
                         Selecciona un perfil de acceso
                       </option>
-                      {ROLE_OPTIONS.map((option) => (
+                      {CREATABLE_ROLE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
@@ -784,12 +789,12 @@ export default function CreateUserPage() {
                                 disabled={Boolean(accionEnCurso)}
                                 className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-800 outline-none transition-colors focus:border-[#6E56CF] focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-50"
                               >
-                                {!ROLE_OPTIONS_BY_VALUE.has(usuario.role) ? (
+                                {!EDITABLE_ROLE_OPTIONS_BY_VALUE.has(usuario.role) ? (
                                   <option value={usuario.role} disabled>
                                     {getDashboardRoleLabel(usuario.role) || usuario.role || "Sin perfil"}
                                   </option>
                                 ) : null}
-                                {ROLE_OPTIONS.map((option) => (
+                                {EDITABLE_ROLE_OPTIONS.map((option) => (
                                   <option key={option.value} value={option.value}>
                                     {option.label}
                                   </option>
@@ -798,7 +803,7 @@ export default function CreateUserPage() {
                               <button
                                 type="button"
                                 onClick={() => actualizarRolUsuario(usuario.id)}
-                                disabled={Boolean(accionEnCurso) || !ROLE_OPTIONS_BY_VALUE.has(rolesUsuarios[usuario.id] ?? usuario.role)}
+                                disabled={Boolean(accionEnCurso) || !EDITABLE_ROLE_OPTIONS_BY_VALUE.has(rolesUsuarios[usuario.id] ?? usuario.role)}
                                 className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-violet-200 bg-white px-3 text-[11px] font-bold text-[#6E56CF] shadow-sm transition-colors hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 {actualizandoRol ? "Guardando..." : "Guardar"}

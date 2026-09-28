@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import {
   canAccessDashboardPath,
-  getAssignableDashboardRoles,
+  getCreatableDashboardRoles,
   getDashboardRoleFromClaims,
   normalizeDashboardRole,
 } from "@/lib/dashboard-access";
 
-const ASSIGNABLE_ROLE_SET = new Set(getAssignableDashboardRoles().map((role) => role.value));
+const CREATABLE_ROLE_SET = new Set(getCreatableDashboardRoles().map((role) => role.value));
 
 function badRequest(message, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -103,7 +103,7 @@ export async function POST(req) {
       return badRequest("Debes ingresar una contrasena.");
     }
 
-    if (!ASSIGNABLE_ROLE_SET.has(role)) {
+    if (!CREATABLE_ROLE_SET.has(role)) {
       return badRequest("El perfil seleccionado no es valido.");
     }
 

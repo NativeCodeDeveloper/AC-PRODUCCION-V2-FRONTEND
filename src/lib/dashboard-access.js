@@ -315,6 +315,15 @@ const routeMatchersByRole = {
 };
 
 const routeDenyMatchersByRole = {
+  cancelado: [
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/agendaCitas$/,
+    /^\/dashboard\/bloqueosAgenda$/,
+    /^\/dashboard\/AgendaDetalle\/[^/]+$/,
+    /^\/dashboard\/FichaClinica$/,
+    /^\/dashboard\/FichasPacientes(?:\/[^/]+)?$/,
+    /^\/dashboard\/NuevaFicha\/[^/]+$/,
+  ],
   secretaria: [
     /^\/dashboard\/FichaClinica$/,
     /^\/dashboard\/fichasClinicasCategorias\/[^/]+$/,
@@ -378,7 +387,7 @@ const DASHBOARD_NAV_SECTIONS = [
     icon: "academy",
     items: [
       { label: "Videos", href: "https://academia.agendaclinicas.cl", icon: "academy", visibleForAllRoles: true },
-      { label: "Tutorial Guiado", action: "startTour", icon: "compass", visibleForAllRoles: true },
+    { label: "Tutorial Guiado", action: "startTour", icon: "compass", visibleForAllRoles: true, hiddenForRoles: ["secretaria", "operador-clinico", "operador-medico", "centro-estetico"] },
     ],
   },
   {
@@ -526,7 +535,7 @@ const DASHBOARD_ROLE_DETAILS = {
     ],
   },
   "operador-clinico": {
-    label: "Operador Clínico",
+    label: "Profesional de Salud - Sin Agenda",
     description: "Gestiona pacientes y fichas clínicas con una vista económica restringida.",
     recommendedFor: "Personal clínico que registra atenciones sin administrar agenda ni valores.",
     access: [
@@ -543,7 +552,7 @@ const DASHBOARD_ROLE_DETAILS = {
     ],
   },
   "operador-medico": {
-    label: "Operador Médico",
+    label: "Profesional Médico (Receta + Exámenes) - Sin Agenda",
     description: "Gestiona pacientes, fichas y documentos médicos, sin funciones odontológicas.",
     recommendedFor: "Médicos que atienden pacientes y emiten documentación clínica.",
     access: [
@@ -829,6 +838,10 @@ function getVisibleDashboardSections(role) {
 function canAccessDashboardNavItem(role, item) {
   const normalizedRole = normalizeDashboardRole(role);
 
+  if (Array.isArray(item.hiddenForRoles) && item.hiddenForRoles.includes(normalizedRole)) {
+    return false;
+  }
+
   if (hasFullDashboardAccess(normalizedRole)) {
     return true;
   }
@@ -874,6 +887,22 @@ function getAssignableDashboardRoles() {
         restrictions: details.restrictions || [],
       };
     });
+}
+
+function getCreatableDashboardRoles() {
+  const excludedRoles = new Set([
+    "recepcionista",
+    "cancelado",
+    "basico",
+    "centro-estetico",
+    "clinico-medico",
+    "odontologico",
+    "oftalmologia",
+    "agenda",
+    "configuracion",
+  ]);
+
+  return getAssignableDashboardRoles().filter((role) => !excludedRoles.has(role.value));
 }
 
 function getRoleFromClerkData(source) {
@@ -928,6 +957,7 @@ export {
   getDashboardRoleDescription,
   getDashboardRoleLabel,
   getAssignableDashboardRoles,
+  getCreatableDashboardRoles,
   getVisibleDashboardSections,
   globallyDeniedDashboardMatchers,
   hasFullDashboardAccess,
