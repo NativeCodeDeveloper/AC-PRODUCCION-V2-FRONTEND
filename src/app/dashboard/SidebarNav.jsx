@@ -355,7 +355,7 @@ export default function SidebarNav() {
           </div>
         </div>
         <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
-          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Soporte" />
+          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
         </div>
       </>
     );
@@ -395,11 +395,11 @@ export default function SidebarNav() {
               </div>
             );
           })}
-      </nav>
 
-      <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
-        <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Soporte" />
-      </div>
+        <div className="mt-3 border-t border-slate-100 pt-2">
+          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
+        </div>
+      </nav>
 
       {/* Pie de notificaciones — tarjeta flotante.
           Antes era una franja plana con una línea dura a todo el ancho. Ahora

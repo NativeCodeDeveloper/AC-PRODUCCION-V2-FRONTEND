@@ -197,6 +197,7 @@ export default function CreateUserPage() {
   const [errorUsuarios, setErrorUsuarios] = useState("");
   const [contrasenasNuevas, setContrasenasNuevas] = useState({});
   const [agendasProfesionales, setAgendasProfesionales] = useState({});
+  const [rolesUsuarios, setRolesUsuarios] = useState({});
   const [accionEnCurso, setAccionEnCurso] = useState("");
   const [mensajeUsuarios, setMensajeUsuarios] = useState("");
   const [listaProfesionales, setListaProfesionales] = useState([]);
@@ -222,6 +223,12 @@ export default function CreateUserPage() {
         usuariosCargados.reduce((agendas, usuario) => ({
           ...agendas,
           [usuario.id]: String(usuario.idProfesionalAgenda || ""),
+        }), {})
+      );
+      setRolesUsuarios(
+        usuariosCargados.reduce((roles, usuario) => ({
+          ...roles,
+          [usuario.id]: String(usuario.role || ""),
         }), {})
       );
     } catch (loadError) {
@@ -390,6 +397,43 @@ export default function CreateUserPage() {
       setMensajeUsuarios(idProfesionalAgenda ? "Agenda asignada correctamente." : "La agenda asignada fue eliminada.");
     } catch (updateError) {
       setErrorUsuarios(updateError.message || "No se pudo actualizar la agenda asignada.");
+    } finally {
+      setAccionEnCurso("");
+    }
+  }
+
+  async function actualizarRolUsuario(usuarioId) {
+    const role = String(rolesUsuarios[usuarioId] || "");
+
+    if (!ROLE_OPTIONS_BY_VALUE.has(role)) {
+      setErrorUsuarios("Selecciona un perfil válido para el usuario.");
+      return;
+    }
+
+    setAccionEnCurso(`role-${usuarioId}`);
+    setErrorUsuarios("");
+    setMensajeUsuarios("");
+
+    try {
+      const response = await fetch(`/api/dashboard/users/${usuarioId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
+      });
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        throw new Error(data?.error || "No se pudo actualizar el perfil.");
+      }
+
+      setUsuarios((current) => current.map((usuario) => (
+        usuario.id === usuarioId
+          ? { ...usuario, role: data?.role || role }
+          : usuario
+      )));
+      setMensajeUsuarios("Perfil actualizado correctamente.");
+    } catch (updateError) {
+      setErrorUsuarios(updateError.message || "No se pudo actualizar el perfil.");
     } finally {
       setAccionEnCurso("");
     }
@@ -715,6 +759,7 @@ export default function CreateUserPage() {
                     {usuarios.map((usuario) => {
                       const actualizandoContrasena = accionEnCurso === `password-${usuario.id}`;
                       const actualizandoAgenda = accionEnCurso === `agenda-${usuario.id}`;
+                      const actualizandoRol = accionEnCurso === `role-${usuario.id}`;
                       const eliminandoUsuario = accionEnCurso === `delete-${usuario.id}`;
 
                       return (
@@ -729,9 +774,36 @@ export default function CreateUserPage() {
                             <p className="mt-1 font-mono text-[10px] text-slate-400">{usuario.id}</p>
                           </td>
                           <td className="px-4 py-4">
-                            <span className="inline-flex rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[10px] font-bold text-[#6E56CF]">
-                              {getDashboardRoleLabel(usuario.role) || usuario.role || "Sin perfil"}
-                            </span>
+                            <div className="flex min-w-[220px] items-center gap-2">
+                              <select
+                                value={rolesUsuarios[usuario.id] ?? String(usuario.role || "")}
+                                onChange={(event) => setRolesUsuarios((current) => ({
+                                  ...current,
+                                  [usuario.id]: event.target.value,
+                                }))}
+                                disabled={Boolean(accionEnCurso)}
+                                className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-800 outline-none transition-colors focus:border-[#6E56CF] focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                              >
+                                {!ROLE_OPTIONS_BY_VALUE.has(usuario.role) ? (
+                                  <option value={usuario.role} disabled>
+                                    {getDashboardRoleLabel(usuario.role) || usuario.role || "Sin perfil"}
+                                  </option>
+                                ) : null}
+                                {ROLE_OPTIONS.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => actualizarRolUsuario(usuario.id)}
+                                disabled={Boolean(accionEnCurso) || !ROLE_OPTIONS_BY_VALUE.has(rolesUsuarios[usuario.id] ?? usuario.role)}
+                                className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-violet-200 bg-white px-3 text-[11px] font-bold text-[#6E56CF] shadow-sm transition-colors hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {actualizandoRol ? "Guardando..." : "Guardar"}
+                              </button>
+                            </div>
                           </td>
                           <td className="px-4 py-4">
                             <div className="flex min-w-[240px] items-center gap-2">

@@ -209,7 +209,7 @@ export default function MobileNav() {
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
                     <LifeBuoy className="h-4 w-4" aria-hidden="true" />
                   </span>
-                  <span className="flex-1 leading-tight">Soporte</span>
+                  <span className="flex-1 leading-tight">Contacto Soporte</span>
                 </Link>
               </div>
 

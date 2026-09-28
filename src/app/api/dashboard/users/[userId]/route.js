@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import {
   canAccessDashboardPath,
+  getAssignableDashboardRoles,
   getDashboardRoleFromClaims,
+  normalizeDashboardRole,
 } from "@/lib/dashboard-access";
+
+const ASSIGNABLE_ROLE_SET = new Set(getAssignableDashboardRoles().map((role) => role.value));
 
 function responseError(error, status = 400) {
   return NextResponse.json({ error }, { status });
@@ -54,14 +58,20 @@ export async function PATCH(req, { params }) {
 
     const password = String(body?.password || "");
     const actualizaAgenda = Object.prototype.hasOwnProperty.call(body || {}, "idProfesionalAgenda");
+    const actualizaRol = Object.prototype.hasOwnProperty.call(body || {}, "role");
     const idProfesionalAgenda = String(body?.idProfesionalAgenda || "").trim();
+    const role = normalizeDashboardRole(body?.role);
 
-    if (!password && !actualizaAgenda) {
-      return responseError("Debes indicar una contraseña o una agenda para actualizar.");
+    if (!password && !actualizaAgenda && !actualizaRol) {
+      return responseError("Debes indicar una contraseña, agenda o perfil para actualizar.");
     }
 
     if (actualizaAgenda && idProfesionalAgenda && !/^\d+$/.test(idProfesionalAgenda)) {
       return responseError("La agenda seleccionada no es válida.");
+    }
+
+    if (actualizaRol && !ASSIGNABLE_ROLE_SET.has(role)) {
+      return responseError("El perfil seleccionado no es válido.");
     }
 
     const client = await clerkClient();
@@ -71,14 +81,21 @@ export async function PATCH(req, { params }) {
       datosActualizados.password = password;
     }
 
-    if (actualizaAgenda) {
+    if (actualizaAgenda || actualizaRol) {
       const targetUser = await client.users.getUser(targetUserId);
       const publicMetadata = { ...(targetUser.publicMetadata || {}) };
 
-      if (idProfesionalAgenda) {
-        publicMetadata.idProfesionalAgenda = idProfesionalAgenda;
-      } else {
-        delete publicMetadata.idProfesionalAgenda;
+      if (actualizaAgenda) {
+        if (idProfesionalAgenda) {
+          publicMetadata.idProfesionalAgenda = idProfesionalAgenda;
+        } else {
+          delete publicMetadata.idProfesionalAgenda;
+        }
+      }
+
+      if (actualizaRol) {
+        publicMetadata.role = role;
+        publicMetadata.rol = role;
       }
 
       datosActualizados.publicMetadata = publicMetadata;
@@ -89,6 +106,7 @@ export async function PATCH(req, { params }) {
     return NextResponse.json({
       success: true,
       idProfesionalAgenda: String(user.publicMetadata?.idProfesionalAgenda || ""),
+      role: String(user.publicMetadata?.role || user.publicMetadata?.rol || ""),
     });
   } catch (error) {
     console.error("PATCH /api/dashboard/users/[userId] failed", error);
