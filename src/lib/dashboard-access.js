@@ -892,7 +892,6 @@ function getAssignableDashboardRoles() {
 function getCreatableDashboardRoles() {
   const excludedRoles = new Set([
     "recepcionista",
-    "cancelado",
     "basico",
     "centro-estetico",
     "clinico-medico",
