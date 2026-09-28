@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import {
   canAccessDashboardPath,
-  getAssignableDashboardRoles,
+  getCreatableDashboardRoles,
   getDashboardRoleFromClaims,
   normalizeDashboardRole,
 } from "@/lib/dashboard-access";
 
-const ASSIGNABLE_ROLE_SET = new Set(getAssignableDashboardRoles().map((role) => role.value));
+const EDITABLE_ROLE_SET = new Set(getCreatableDashboardRoles().map((role) => role.value));
 
 function responseError(error, status = 400) {
   return NextResponse.json({ error }, { status });
@@ -70,7 +70,7 @@ export async function PATCH(req, { params }) {
       return responseError("La agenda seleccionada no es válida.");
     }
 
-    if (actualizaRol && !ASSIGNABLE_ROLE_SET.has(role)) {
+    if (actualizaRol && !EDITABLE_ROLE_SET.has(role)) {
       return responseError("El perfil seleccionado no es válido.");
     }
 

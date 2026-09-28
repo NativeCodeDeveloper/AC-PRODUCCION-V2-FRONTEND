@@ -9,6 +9,7 @@ const BYPASS_DASHBOARD_AUTH = false;
 const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"]);
 const isDashboardApiRoute = createRouteMatcher(["/api/dashboard(.*)"]);
 const SUBSCRIPTION_CANCELLED_PATH = "/dashboard/suscripcion-cancelada";
+const SECRETARY_FICHA_PATH_MATCHER = /^\/dashboard\/(?:FichaClinica|FichasPacientes(?:\/[^/]+)?|NuevaFicha\/[^/]+)$/;
 
 export default clerkMiddleware(async (auth, req) => {
   if (BYPASS_DASHBOARD_AUTH) {
@@ -30,6 +31,10 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isDashboardRoute(req) && role === "cancelado" && pathname !== SUBSCRIPTION_CANCELLED_PATH) {
     return NextResponse.redirect(new URL(SUBSCRIPTION_CANCELLED_PATH, req.url));
+  }
+
+  if (isDashboardRoute(req) && role === "secretaria" && SECRETARY_FICHA_PATH_MATCHER.test(pathname)) {
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   if (isDashboardRoute(req) && !canAccessDashboardPath(role, pathname)) {

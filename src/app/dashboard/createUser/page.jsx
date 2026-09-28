@@ -16,7 +16,6 @@ import {
   UsersRound,
 } from "lucide-react";
 import {
-  getAssignableDashboardRoles,
   getCreatableDashboardRoles,
   getDashboardRoleLabel,
 } from "@/lib/dashboard-access";
@@ -35,7 +34,7 @@ const CREATABLE_ROLE_OPTIONS = getCreatableDashboardRoles();
 const CREATABLE_ROLE_OPTIONS_BY_VALUE = new Map(
   CREATABLE_ROLE_OPTIONS.map((option) => [option.value, option])
 );
-const EDITABLE_ROLE_OPTIONS = getAssignableDashboardRoles();
+const EDITABLE_ROLE_OPTIONS = getCreatableDashboardRoles();
 const EDITABLE_ROLE_OPTIONS_BY_VALUE = new Map(
   EDITABLE_ROLE_OPTIONS.map((option) => [option.value, option])
 );

@@ -26,6 +26,7 @@ import BotonVideoTutorial from "@/Componentes/VideoTutorial";
 import TutorialGuiadoCalendario from "@/Componentes/TutorialGuiadoCalendario";
 import { useTour } from "@/ContextosGlobales/TourContext";
 import { marcarReservaDeTour } from "@/lib/tourReserva";
+import { canAccessFichasClinicas, getDashboardRoleFromUser } from "@/lib/dashboard-access";
 
 dayjs.locale("es");
 const localizer = dayjsLocalizer(dayjs);
@@ -61,6 +62,8 @@ function CalendarioContent() {
 
     const API = process.env.NEXT_PUBLIC_API_URL;
     const { user, isLoaded: usuarioCargado } = useUser();
+    const dashboardRole = getDashboardRoleFromUser(user);
+    const canSeeFichasClinicas = usuarioCargado && canAccessFichasClinicas(dashboardRole);
     // Solo se deja la marca de "reserva de prueba" mientras el tour corre: fuera
     // del tour, un agendamiento normal no debe quedar marcado ni terminar
     // resaltando una fila cualquiera la proxima vez que alguien abra el tutorial.
@@ -664,6 +667,10 @@ function CalendarioContent() {
     }
 
     async function verFichaClinicaPaciente(reserva) {
+        if (!canSeeFichasClinicas) {
+            return toast.error("Tu perfil no tiene acceso a fichas clínicas.");
+        }
+
         const rutNormalizado = normalizarRut(reserva?.rut);
 
         if (!rutNormalizado) {
@@ -2380,6 +2387,7 @@ function CalendarioContent() {
                         >
                             <span>Pacientes</span>
                         </button>
+                        {canSeeFichasClinicas && (
                         <button
                             type="button"
                             onClick={() => router.push("/dashboard/FichaClinica")}
@@ -2391,6 +2399,7 @@ function CalendarioContent() {
                             </svg>
                             <span>Ver Fichas</span>
                         </button>
+                        )}
                         <BotonVideoTutorial
                             videoId="ga44dJoW62c"
                             titulo="Calendario y reservas"
