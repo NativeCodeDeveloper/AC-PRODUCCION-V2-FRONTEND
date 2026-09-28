@@ -13,6 +13,10 @@
  *                       "Historial de Citas"): el tour lo abre solo ANTES de
  *                       medir el elemento, para que el usuario vea el contenido
  *                       mientras dura la explicación (ver TutorialGuiadoFichas).
+ *                       Ojo: en estos pasos el recuadro resaltado enmarca el
+ *                       <summary>, no el panel entero — un panel abierto puede
+ *                       medir más que la pantalla y ahí driver.js ya no puede
+ *                       colocar el popover contra nada (ver `anclaDelPaso`).
  */
 
 export const TOUR_FICHAS_STEPS = [

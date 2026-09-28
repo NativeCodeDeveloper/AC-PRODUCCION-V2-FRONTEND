@@ -8,7 +8,7 @@
 import { ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 import MobileNav from "./MobileNav";
-import SidebarNav from "./SidebarNav";
+import SidebarShell from "./SidebarShell";
 import RegistroAcceso from "./RegistroAcceso";
 import NotificationProvider from "@/components/NotificationProvider";
 import DashboardPageTransition from "@/components/DashboardPageTransition";
@@ -35,24 +35,10 @@ export default function DashboardLayout({ children }) {
                     <div className="flex h-full w-full">
 
                         {/* ═══════════════ SIDEBAR PREMIUM ═══════════════ */}
-                        {/* ── SIDEBAR FLOTANTE ──────────────────────────────
-                            Antes iba pegado al borde con una línea dura a la
-                            derecha. Ahora es una tarjeta despegada de los
-                            bordes, con el mismo tratamiento del pie de
-                            notificaciones: borde hairline y sombra en dos
-                            capas — una de contacto (1px, casi opaca) y otra
-                            difusa y muy abierta. Esa combinación da profundidad
-                            sin que se vea una sombra "dibujada".
-
-                            La columna mide 284px para que la tarjeta conserve
-                            sus 260px: el respiro se gana afuera, no quitándole
-                            ancho al menú. */}
-                        <aside className="hidden md:flex h-screen w-[284px] shrink-0 flex-col p-3">
-                            <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[22px] border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-18px_rgba(15,23,42,0.30)]">
-                                {/* ── Navegación + UserMenu (componente cliente para persistencia) ── */}
-                                <SidebarNav />
-                            </div>
-                        </aside>
+                        {/* El ancho y el modo (fijado / rail de iconos) los
+                            maneja SidebarShell, que es cliente: necesita hover,
+                            localStorage y saber si hay un tour corriendo. */}
+                        <SidebarShell />
 
                         {/* ═══════════════ CONTENT ═══════════════ */}
                         <div className="flex-1 min-w-0 h-full overflow-y-auto">

@@ -6,7 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { NOMBRES_PREVISION, previsionDesdeId, previsionIdDesdeNombre } from "@/lib/previsiones";
 import FichaClinicaModal from "@/Componentes/FichaClinicaModal";
 import EditarFichaModal from "@/Componentes/EditarFichaModal";
-import { claveFechaCivil, formatearFechaCivil } from "@/lib/fechas";
+import { claveFechaCivil, formatearFechaCivil, partesFechaCivil } from "@/lib/fechas";
 import {toast} from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -33,7 +33,7 @@ import {
     getDashboardRoleFromUser,
 } from "@/lib/dashboard-access";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import TutorialGuiadoFichas from "@/Componentes/TutorialGuiadoFichas";
 
 
@@ -105,10 +105,16 @@ function esDatoVisible(valor) {
 function esFechaPlaceholder(fecha) {
     if (!fecha) return true;
 
-    const date = new Date(fecha);
-    if (Number.isNaN(date.getTime())) return true;
+    // Se lee el anio del TEXTO, no con `new Date`. El placeholder que escriben
+    // el dashboard y el calendario al crear un paciente sin nacimiento es
+    // exactamente "1900-01-01", y `new Date("1900-01-01")` lo interpreta como
+    // medianoche UTC: en Chile (UTC-3/-4) eso cae el 31-12-1899, getFullYear()
+    // devolvia 1899 y el placeholder se colaba como fecha real — la carpeta
+    // mostraba "126 anos" en la tarjeta y en el PDF de la ficha.
+    const partes = partesFechaCivil(fecha);
+    if (!partes) return true;
 
-    return date.getFullYear() === 1900;
+    return partes.anio === 1900;
 }
 
 function convertirFechaParaBackend(fecha) {
@@ -1032,7 +1038,7 @@ export default function Paciente() {
             <div className="flex-1 mx-auto w-full max-w-[1600px] px-4 py-6 md:px-8 md:py-10 2xl:max-w-none">
 
                 {/* ── Header Principal ── */}
-                <div className="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                <div className="mb-8 flex flex-col-reverse gap-6 sm:flex-col lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
                             Carpeta Clínica: {pacienteActual ? `${pacienteActual.nombre} ${pacienteActual.apellido}` : "Paciente"}
@@ -1040,32 +1046,38 @@ export default function Paciente() {
                     </div>
                     {/* justify-end: sin esto, al envolverse en pantallas medianas
                         las filas se alineaban a la izquierda y el borde derecho
-                        quedaba irregular. */}
-                    <div className="flex flex-wrap items-center justify-end gap-3">
-                        <div className="h-14 px-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-center shadow-sm">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">RUT</span>
-                            <span className="text-sm font-bold text-slate-900 mt-1 leading-none font-mono">{formatRut(pacienteActual?.rut) || "-"}</span>
+                        quedaba irregular. En telefono no aplica: ahi nada se
+                        envuelve porque cada bloque ocupa el ancho completo. */}
+                    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                        {/* `sm:contents` disuelve este envoltorio de `sm` para
+                            arriba: las dos tarjetas vuelven a ser hijas directas
+                            de la fila y el diseño de escritorio no cambia. */}
+                        <div className="grid grid-cols-2 gap-3 sm:contents">
+                            <div className="h-14 px-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-center shadow-sm">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">RUT</span>
+                                <span className="text-sm font-bold text-slate-900 mt-1 leading-none font-mono">{formatRut(pacienteActual?.rut) || "-"}</span>
+                            </div>
+                            <div className="h-14 px-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-center shadow-sm">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Registros</span>
+                                <span className="text-sm font-bold text-slate-900 mt-1 leading-none">{totalFichas}</span>
+                            </div>
                         </div>
-                        <div className="h-14 px-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-center shadow-sm">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Registros</span>
-                            <span className="text-sm font-bold text-slate-900 mt-1 leading-none">{totalFichas}</span>
-                        </div>
-                        <BotonVideoTutorial
-                            videoId="KWLr1mHjhA0"
-                            titulo="Ficha del paciente"
-                            ariaLabel="Abrir video tutorial de fichas clínicas"
-                            className="flex h-14 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-slate-200 bg-white px-5 text-[13px] font-bold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+                        <BotonAyuda
+                            video={{
+                                videoId: "KWLr1mHjhA0",
+                                titulo: "Ficha del paciente",
+                                ariaLabel: "Abrir video tutorial de fichas clínicas",
+                            }}
+                            tutorial={TutorialGuiadoFichas}
+                            tutorialProps={{ ariaLabel: "Iniciar el tutorial guiado de la ficha del paciente" }}
+                            claseContenedor="w-full sm:w-auto"
+                            className="flex h-14 w-full items-center justify-center gap-2 sm:w-auto whitespace-nowrap rounded-2xl border border-slate-200 bg-white px-5 text-[13px] font-bold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                             claseIcono="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#F3F0FF] text-[#6E56CF]"
                         />
-                        <TutorialGuiadoFichas
-                            ariaLabel="Iniciar el tutorial guiado de la ficha del paciente"
-                            className="flex h-14 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-slate-200 bg-white px-5 text-[13px] font-bold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
-                            claseIcono="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#F3F0FF] text-[#6E56CF]"
-                        />
-                        <div className="flex gap-2">
+                        <div className="flex w-full gap-2 sm:w-auto">
                             <button
                                 onClick={() => volverAFichas()}
-                                className="h-14 px-5 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                                className="h-14 shrink-0 px-5 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -1073,7 +1085,7 @@ export default function Paciente() {
                             </button>
                             <button
                                 onClick={() => volverAListaTrabajo()}
-                                className="h-14 px-6 rounded-2xl bg-slate-900 text-white text-[13px] font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-100 flex items-center justify-center gap-2"
+                                className="h-14 flex-1 sm:flex-none px-6 rounded-2xl bg-slate-900 text-white text-[13px] font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-100 flex items-center justify-center gap-2"
                             >
                                 Reservaciones
                             </button>
@@ -1105,7 +1117,7 @@ export default function Paciente() {
                                         </div>
                                         <div className="space-y-1">
                                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Edad</span>
-                                            <p className="text-[12px] font-semibold text-slate-700">{calcularEdad(pacienteActual.nacimiento)} años</p>
+                                            <p className="text-[12px] font-semibold text-slate-700">{calcularEdad(pacienteActual.nacimiento) === "-" ? "-" : `${calcularEdad(pacienteActual.nacimiento)} años`}</p>
                                         </div>
                                         <div className="space-y-1">
                                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Previsión</span>

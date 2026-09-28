@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getDashboardRoleFromUser } from "@/lib/dashboard-access";
 
-export default function UserMenu() {
+export default function UserMenu({ compacto = false }) {
     const { user, isLoaded } = useUser();
     const { signOut, openUserProfile } = useClerk();
     const [empresaNombre, setEmpresaNombre] = useState("");
@@ -29,6 +29,14 @@ export default function UserMenu() {
     }, []);
 
     if (!isLoaded) {
+        if (compacto) {
+            return (
+                <div className="flex shrink-0 justify-center px-2 pb-2 pt-1">
+                    <div className="h-9 w-9 animate-pulse rounded-full bg-slate-100" />
+                </div>
+            );
+        }
+
         return (
             <div className="shrink-0 px-4 pb-3 pt-4">
                 <div className="flex flex-col items-center gap-2.5">
@@ -64,6 +72,65 @@ export default function UserMenu() {
                         </p>
                     </div>
                 </div>
+            </div>
+        );
+    }
+
+    if (compacto) {
+        return (
+            <div className="relative flex shrink-0 justify-center px-2 pb-2 pt-1">
+                <details className="group" data-user-role={role} data-company-name={empresaNombre || undefined}>
+                    <summary
+                        aria-label="Abrir menú de usuario"
+                        title={name}
+                        className="flex cursor-pointer list-none select-none items-center justify-center [&::-webkit-details-marker]:hidden"
+                    >
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#6E56CF] bg-[#EDE9FE] shadow-sm transition-transform duration-200 group-hover:scale-[1.06]">
+                            {avatar
+                                ? <img src={avatar} alt={name} className="h-full w-full object-cover" />
+                                : <span className="text-[13px] font-bold text-[#6E56CF]">{name.charAt(0)}</span>}
+                        </div>
+                    </summary>
+
+                    {/* Hacia la derecha, como los flyout de seccion: en el rail
+                        no hay ancho para desplegarlo debajo. */}
+                    <div className="absolute left-full top-0 z-[95] ml-1 w-[236px] overflow-hidden rounded-[18px] border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.06),0_24px_56px_-24px_rgba(15,23,42,0.45)]">
+                        <div className="border-b border-slate-100 px-4 py-3">
+                            <p className="truncate text-[13px] font-semibold leading-tight text-slate-800">{name}</p>
+                            {empresaNombre && (
+                                <p className="mt-1 truncate text-[10px] font-medium text-slate-400">{empresaNombre}</p>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => openUserProfile()}
+                            className="flex w-full items-center gap-2.5 border-b border-slate-100 px-4 py-3 text-[12px] font-medium text-slate-600 transition-all hover:bg-violet-50 hover:text-[#6E56CF]"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                            <span>Editar perfil</span>
+                        </button>
+                        <Link
+                            href="/"
+                            className="flex items-center gap-2.5 border-b border-slate-100 px-4 py-3 text-[12px] font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-[#6E56CF]"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span>Volver a página web</span>
+                        </Link>
+                        <button
+                            onClick={() => signOut({ redirectUrl: "/sign-in" })}
+                            className="flex w-full items-center gap-2.5 px-4 py-3 text-[12px] font-medium text-slate-600 transition-all hover:bg-red-50 hover:text-red-600"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </div>
+                </details>
             </div>
         );
     }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useUser } from "@clerk/nextjs";
 import { LifeBuoy } from "lucide-react";
 import UserMenu from "./UserMenu";
@@ -251,7 +252,229 @@ function NavAccordion({ id, label, icon, children, openAccordions, onToggle, dat
   );
 }
 
-export default function SidebarNav() {
+
+
+// Capa flotante anclada a un elemento del rail.
+//
+// Va en un PORTAL y con `position: fixed` por una razon concreta: la tarjeta
+// del sidebar tiene `overflow-hidden` (es lo que recorta sus esquinas
+// redondeadas) y la lista de iconos scrollea en vertical. Cualquier panel que
+// salga por el costado, dibujado dentro de ese arbol, queda RECORTADO — y un
+// `overflow-x: visible` no sirve: junto a un `overflow-y: auto` el navegador lo
+// degrada a `auto`. Fuera del arbol no hay nada que lo corte.
+function CapaFlotante({ anclaRef, children, separacion = 8 }) {
+  const [montado, setMontado] = useState(false);
+  const [pos, setPos] = useState(null);
+
+  useEffect(() => setMontado(true), []);
+
+  useEffect(() => {
+    const medir = () => {
+      const r = anclaRef.current?.getBoundingClientRect();
+      if (!r) return;
+      setPos({ left: r.right + separacion, top: r.top });
+    };
+    medir();
+    // Se remide en scroll y resize: el ancla se mueve con la lista.
+    window.addEventListener("scroll", medir, true);
+    window.addEventListener("resize", medir);
+    return () => {
+      window.removeEventListener("scroll", medir, true);
+      window.removeEventListener("resize", medir);
+    };
+  }, [anclaRef, separacion]);
+
+  if (!montado || !pos) return null;
+
+  return createPortal(
+    <div style={{ position: "fixed", left: pos.left, top: pos.top, zIndex: 95 }}>
+      {children}
+    </div>,
+    document.body,
+  );
+}
+
+// ─── MODO RAIL ───────────────────────────────────────────────────────────────
+// Un icono por SECCION (10), no por item (26): en 64px no caben 26 destinos, y
+// aunque cupieran, una tira de 26 iconos sin texto no se memoriza. Las opciones
+// de cada seccion salen en un flyout al pasar el raton por su icono.
+
+const RETARDO_FLYOUT_ABRIR = 150;
+const RETARDO_FLYOUT_CERRAR = 320;
+
+function IconoRail({ section, activo, abierto, onAbrir, onCerrar, onAlternar, onElegir }) {
+  const esEnlaceDirecto = !section.accordionLabel && section.items.length === 1;
+  const etiqueta = section.accordionLabel || section.title;
+  const anclaRef = useRef(null);
+  const [sobreIcono, setSobreIcono] = useState(false);
+
+  const contenido = (
+    <>
+      {/* Indicador del borde: la pista de "estas aqui" cuando no hay texto. */}
+      <span
+        className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#6E56CF] transition-opacity duration-150 ${
+          activo ? "opacity-100" : "opacity-0"
+        }`}
+      />
+      <span
+        className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-150 ${
+          activo ? "bg-[#EDE9FE] text-[#6E56CF]" : "bg-slate-50 text-slate-500 group-hover:bg-slate-100 group-hover:text-slate-700"
+        }`}
+      >
+        {ICONS[section.icon]}
+      </span>
+    </>
+  );
+
+  return (
+    <div
+      ref={anclaRef}
+      className="relative"
+      onMouseEnter={() => { setSobreIcono(true); onAbrir(); }}
+      onMouseLeave={() => { setSobreIcono(false); onCerrar(); }}
+      onFocusCapture={onAbrir}
+    >
+      {esEnlaceDirecto ? (
+        <Link
+          href={section.items[0].href}
+          aria-label={etiqueta}
+          onClick={onElegir}
+          className="group relative flex h-11 w-full items-center justify-center"
+        >
+          {contenido}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          aria-label={etiqueta}
+          aria-haspopup="menu"
+          aria-expanded={abierto}
+          onClick={onAlternar}
+          className="group relative flex h-11 w-full items-center justify-center"
+        >
+          {contenido}
+        </button>
+      )}
+
+      {/* Tooltip solo para los enlaces directos: los que abren flyout ya
+          muestran su nombre en la cabecera del panel. */}
+      {esEnlaceDirecto && sobreIcono && (
+        <CapaFlotante anclaRef={anclaRef}>
+          <span className="pointer-events-none block translate-y-[10px] whitespace-nowrap rounded-lg bg-slate-900/90 px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm">
+            {etiqueta}
+          </span>
+        </CapaFlotante>
+      )}
+
+      {abierto && !esEnlaceDirecto && (
+        <CapaFlotante anclaRef={anclaRef} separacion={4}>
+          {/* `pl-2` hace de puente: el raton cruza del icono al panel sin pasar
+              por un hueco muerto, que es lo que hace parpadear a este patron. */}
+          <div className="pl-2" role="menu" onMouseEnter={onAbrir} onMouseLeave={onCerrar} onClick={onElegir}>
+            <div className="w-[236px] rounded-[18px] border border-slate-200/70 bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_24px_56px_-24px_rgba(15,23,42,0.45)]">
+              <p className="px-2 pb-1.5 pt-1 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-300">
+                {etiqueta}
+              </p>
+              {section.items.map((item) => (
+                <SubNavItem key={item.href || item.action} href={item.href} label={item.label} action={item.action} />
+              ))}
+            </div>
+          </div>
+        </CapaFlotante>
+      )}
+    </div>
+  );
+}
+
+function NavRail({ sections, pathname, modo, onCambiarModo }) {
+  const [seccionAbierta, setSeccionAbierta] = useState(null);
+  const temporizador = useRef(null);
+
+  useEffect(() => () => window.clearTimeout(temporizador.current), []);
+
+  const programar = (id, retardo) => {
+    window.clearTimeout(temporizador.current);
+    temporizador.current = window.setTimeout(() => setSeccionAbierta(id), retardo);
+  };
+
+  return (
+    <>
+      <BotonModo modo={modo} onCambiarModo={onCambiarModo} colapsado />
+      <UserMenu compacto />
+      <div className="mx-3 border-t border-slate-100" />
+      <nav className="flex-1 overflow-y-auto px-2 pt-2 pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex flex-col gap-0.5">
+          {sections.map((section) => (
+            <IconoRail
+              key={section.id}
+              section={section}
+              activo={section.items.some((item) => isPathActive(pathname, item.href))}
+              abierto={seccionAbierta === section.id}
+              onAbrir={() => programar(section.id, RETARDO_FLYOUT_ABRIR)}
+              onCerrar={() => programar(null, RETARDO_FLYOUT_CERRAR)}
+              onAlternar={() => {
+                window.clearTimeout(temporizador.current);
+                setSeccionAbierta((actual) => (actual === section.id ? null : section.id));
+              }}
+              onElegir={() => {
+                window.clearTimeout(temporizador.current);
+                setSeccionAbierta(null);
+              }}
+            />
+          ))}
+        </div>
+      </nav>
+      <div className="shrink-0 border-t border-slate-100 px-2 py-2">
+        <Link
+          href={URL_SOPORTE}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contacto Soporte"
+          title="Contacto Soporte"
+          className="group relative flex h-11 w-full items-center justify-center"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-all duration-150 group-hover:bg-slate-100 group-hover:text-slate-700">
+            <LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+
+        </Link>
+      </div>
+      <div className="flex shrink-0 justify-center px-2 pb-3">
+        <NotificationBell />
+      </div>
+    </>
+  );
+}
+
+// Boton de fijar/soltar. Deja el rail como una ELECCION reversible de un clic:
+// quien no se acomode a los iconos lo fija y queda como siempre.
+function BotonModo({ modo, onCambiarModo, colapsado, bloqueado }) {
+  const fijado = modo === "fijado";
+
+  return (
+    <div className={`flex shrink-0 pt-3 ${colapsado ? "justify-center px-2" : "justify-end px-4"}`}>
+      <button
+        type="button"
+        onClick={onCambiarModo}
+        disabled={bloqueado}
+        aria-pressed={fijado}
+        title={bloqueado ? "No se puede cambiar mientras el tutorial está en curso" : fijado ? "Contraer el menú a iconos" : "Fijar el menú abierto"}
+        aria-label={fijado ? "Contraer el menú a iconos" : "Fijar el menú abierto"}
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 4v16" strokeLinecap="round" strokeLinejoin="round" />
+          {fijado
+            ? <path d="M14 9l-2 3 2 3" strokeLinecap="round" strokeLinejoin="round" />
+            : <path d="M13 9l2 3-2 3" strokeLinecap="round" strokeLinejoin="round" />}
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+export default function SidebarNav({ colapsado = false, modo = "fijado", onCambiarModo = () => {}, bloqueadoPorTour = false }) {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
   const role = getDashboardRoleFromUser(user);
@@ -324,6 +547,13 @@ export default function SidebarNav() {
 
   if (!isLoaded) return null;
 
+  // El rail se dibuja aparte: no es el mismo arbol con clases distintas, porque
+  // los acordeones (que se despliegan hacia abajo) no tienen equivalente en
+  // 64px — ahi las opciones salen de lado, en un flyout.
+  if (colapsado && role !== "cancelado") {
+    return <NavRail sections={sections} pathname={pathname} modo={modo} onCambiarModo={onCambiarModo} />;
+  }
+
   if (role === "cancelado") {
     return (
       <>
@@ -363,6 +593,7 @@ export default function SidebarNav() {
 
   return (
     <>
+      <BotonModo modo={modo} onCambiarModo={onCambiarModo} bloqueado={bloqueadoPorTour} />
       <UserMenu />
       <nav className="mx-4 flex-1 overflow-y-auto border-t border-slate-100 pb-4 pt-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {sections.map((section) => {

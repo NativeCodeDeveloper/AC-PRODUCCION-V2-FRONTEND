@@ -5,11 +5,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
 import ShadcnInput from "@/Componentes/shadcnInput2";
-import { Textarea } from "@/components/ui/textarea";
 import { RutInput } from "@/Componentes/RutInput";
 import { PhoneInput } from "@/Componentes/PhoneInput";
 
-const DESCRIPCION_MAX_LARGO = 500;
+// El campo es un ROTULO de profesion/especialidad ("Cirujano dentista",
+// "Ortodoncista"), no una biografia. Con los 500 caracteres anteriores la gente
+// escribia parrafos, y este texto se reimprime en sitios estrechos que no dan
+// para eso: el pie de firma de los 6 PDF (bloque de 62mm, ver src/lib/pdfFirma.js),
+// la tarjeta del profesional en el dashboard y las tarjetas del sitio publico
+// (agendaProfesionales, formularioReservaProfesional). 65 caracteres alcanzan
+// para cualquier especialidad real y entran en una linea en todos esos formatos.
+const ESPECIALIDAD_MAX_LARGO = 65;
 
 const ESTADO_INICIAL = {
   nombreProfesional: "",
@@ -21,7 +27,7 @@ const ESTADO_INICIAL = {
 
 const ETIQUETAS = {
   nombreProfesional: "Nombre del profesional",
-  descripcionProfesional: "Especialidad o descripción",
+  descripcionProfesional: "Profesión / Especialidad",
   correoContacto: "Correo electrónico",
   numeroTelefono: "Teléfono",
   rutProfesional: "RUT",
@@ -34,7 +40,10 @@ export function validarProfesional(datos) {
 
   for (const campo of CAMPOS) {
     if (!String(datos[campo] ?? "").trim()) {
-      errores[campo] = `${ETIQUETAS[campo]} es obligatorio.`;
+      // Redaccion neutra: las etiquetas mezclan genero ("Profesión /
+      // Especialidad" vs "Correo electrónico") y "es obligatorio" concordaba
+      // mal con las femeninas.
+      errores[campo] = `Debe indicar ${ETIQUETAS[campo].toLowerCase()}.`;
     }
   }
 
@@ -50,8 +59,8 @@ export function validarProfesional(datos) {
     errores.rutProfesional = "El RUT ingresado no es válido.";
   }
 
-  if (datos.descripcionProfesional.length > DESCRIPCION_MAX_LARGO) {
-    errores.descripcionProfesional = `Máximo ${DESCRIPCION_MAX_LARGO} caracteres.`;
+  if (datos.descripcionProfesional.length > ESPECIALIDAD_MAX_LARGO) {
+    errores.descripcionProfesional = `Máximo ${ESPECIALIDAD_MAX_LARGO} caracteres.`;
   }
 
   return errores;
@@ -345,17 +354,28 @@ export default function ProfesionalModal({ abierto, profesional, onCerrar, onGua
             </div>
 
             <div data-campo="descripcionProfesional" data-tour="profesional-descripcion" className="sm:col-span-2">
-              <Campo etiqueta="Especialidad" error={errores.descripcionProfesional} htmlFor="pr-descripcion">
-                <Textarea
+              <Campo etiqueta="Profesión / Especialidad" error={errores.descripcionProfesional} htmlFor="pr-descripcion">
+                {/* Una sola linea, no <textarea>: un cuadro de 96px de alto
+                    invita a escribir el parrafo que este campo justamente no
+                    debe tener, y un salto de linea agrega un renglon al pie de
+                    firma de todos los PDF. El replace deja fuera cualquier
+                    salto que llegue pegado desde el portapapeles. */}
+                <ShadcnInput
                   id="pr-descripcion"
                   value={datos.descripcionProfesional}
-                  onChange={(e) => actualizar("descripcionProfesional", e.target.value)}
-                  placeholder="Ej: Especialista en ortodoncia con 10 años de experiencia"
-                  maxLength={DESCRIPCION_MAX_LARGO}
-                  className="min-h-[96px] rounded-xl border-slate-200 placeholder:text-slate-400 focus:border-slate-900 focus:ring-0"
+                  onChange={(e) => actualizar("descripcionProfesional", e.target.value.replace(/\s*[\r\n]+\s*/g, " "))}
+                  placeholder="Ej: Cirujano dentista"
+                  maxLength={ESPECIALIDAD_MAX_LARGO}
+                  className={campoBase}
                 />
-                <p className="text-right text-[11px] text-slate-400">
-                  {datos.descripcionProfesional.length}/{DESCRIPCION_MAX_LARGO}
+                {/* Un profesional creado antes de este tope puede traer un
+                    texto mas largo: `maxLength` no recorta lo que ya venia
+                    cargado, solo impide seguir escribiendo. El contador se
+                    marca para que se vea por que no deja guardar. */}
+                <p className={`text-right text-[11px] ${
+                  datos.descripcionProfesional.length > ESPECIALIDAD_MAX_LARGO ? "font-semibold text-red-600" : "text-slate-400"
+                }`}>
+                  {datos.descripcionProfesional.length}/{ESPECIALIDAD_MAX_LARGO}
                 </p>
               </Campo>
             </div>

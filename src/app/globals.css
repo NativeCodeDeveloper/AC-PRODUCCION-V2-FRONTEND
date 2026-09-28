@@ -725,6 +725,39 @@ body.driver-active [data-tour-modal] {
   border: 1px solid #cbd5e1;
 }
 
+/* "Omitir" es la acción de MENOR jerarquía del footer: salta el paso sin
+   hacerlo. Antes se pintaba en ámbar (`!bg-amber-50 !text-amber-800` desde el
+   JS) y terminaba siendo el botón más llamativo del popover — el ámbar lee como
+   advertencia y competía con "Siguiente", que es la acción que el tour quiere
+   que se presione. Acá baja a un tratamiento terciario neutro: gris plano, sin
+   borde ni sombra, etiqueta en gris medio que solo se oscurece al pasar el
+   mouse. Así la jerarquía queda Siguiente (sólido) > Atrás (outline) > Omitir
+   (silencioso). */
+/* Mismo motivo que en "Atrás" para apuntar con
+   `.driver-popover-footer button.ac-tour-omitir-btn`: la regla común de más
+   arriba (`.ac-tour-popover .driver-popover-footer button`) fija `border` y
+   `font-weight`, y por especificidad le gana a un selector más corto. */
+.ac-tour-popover .driver-popover-footer button.ac-tour-omitir-btn {
+  background: #f5f5f7;
+  color: #6e6e73;
+  border: 1px solid transparent;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.ac-tour-popover .driver-popover-footer button.ac-tour-omitir-btn:hover {
+  background: #ebebed;
+  color: #1d1d1f;
+}
+
+/* `box-shadow` en vez de `outline` para el foco: el popover recorta con
+   `border-radius` y un outline cuadrado se ve fuera de sitio en un botón de
+   10px de radio. */
+.ac-tour-popover .driver-popover-footer button.ac-tour-omitir-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 10, 11, 0.16);
+}
+
 .ac-tour-popover .driver-popover-close-btn {
   color: #94a3b8;
   font-size: 16px;

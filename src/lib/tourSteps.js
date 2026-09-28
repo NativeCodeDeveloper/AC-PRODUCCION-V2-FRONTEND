@@ -135,7 +135,7 @@ export const TOUR_STEPS = [
     route: "/dashboard/profesionales",
     selector: '[data-tour="profesional-descripcion"]',
     title: "Paso 1: Crea un profesional",
-    description: "Aquí escribe el <strong>título o la especialidad</strong>, por ejemplo: Médico, Matrona, Cirujano Dentista, Nutricionista, Psicólogo o la especialidad que estimes pertinente. Los pacientes verán este texto al agendar desde la web, por eso debe ser claro y no demasiado largo.",
+    description: "Aquí escribe el <strong>título o la especialidad</strong>, por ejemplo: Médico, Matrona, Cirujano Dentista, Nutricionista, Psicólogo o la especialidad que estimes pertinente. Los pacientes verán este texto al agendar desde la web, y también sale en los documentos, por eso el campo admite hasta <strong>65 caracteres</strong>.",
     side: "bottom",
   },
   {

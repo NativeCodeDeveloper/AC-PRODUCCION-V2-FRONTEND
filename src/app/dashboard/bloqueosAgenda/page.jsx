@@ -12,7 +12,7 @@ import { es } from "date-fns/locale";
 import { format, eachDayOfInterval } from "date-fns";
 import ToasterClient from "@/Componentes/ToasterClient";
 import { InfoButton } from "@/Componentes/InfoButton";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import TutorialGuiadoBloqueos from "@/Componentes/TutorialGuiadoBloqueos";
 import { useTour } from "@/ContextosGlobales/TourContext";
 import {
@@ -388,16 +388,15 @@ export default function BloqueosAgendas() {
                             </svg>
                             <span>Agendar Paciente</span>
                         </Link>
-                        <BotonVideoTutorial
-                            videoId="2wT7jMPcTRM"
-                            inicio={1}
-                            titulo="Bloqueos de agenda"
-                            ariaLabel="Abrir video tutorial de bloqueo de agenda"
-                            className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
-                        />
-                        <TutorialGuiadoBloqueos
-                            etiqueta="Tutorial Guiado"
-                            ariaLabel="Iniciar el tutorial guiado del bloqueo de agenda"
+                        <BotonAyuda
+                            video={{
+                                videoId: "2wT7jMPcTRM",
+                                inicio: 1,
+                                titulo: "Bloqueos de agenda",
+                                ariaLabel: "Abrir video tutorial de bloqueo de agenda",
+                            }}
+                            tutorial={TutorialGuiadoBloqueos}
+                            tutorialProps={{ ariaLabel: "Iniciar el tutorial guiado del bloqueo de agenda" }}
                             className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                         />
                         <InfoButton

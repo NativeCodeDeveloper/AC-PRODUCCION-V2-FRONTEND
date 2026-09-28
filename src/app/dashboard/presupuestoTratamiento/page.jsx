@@ -1,7 +1,7 @@
 'use client'
 import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import React, {useState, useEffect, useMemo} from "react";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import TutorialGuiadoPresupuesto from "@/Componentes/TutorialGuiadoPresupuesto";
 import {
     Table,
@@ -373,17 +373,15 @@ export default function PresupuestoTratamiento() {
                         >
                             Ir a prestaciones
                         </a>
-                        <BotonVideoTutorial
-                            videoId="RUGGZeSXmFk"
-                            titulo="Presupuesto de tratamiento"
-                            etiqueta="Video tutorial"
-                            ariaLabel="Abrir video tutorial de presupuesto de tratamiento"
+                        <BotonAyuda
+                            video={{
+                                videoId: "RUGGZeSXmFk",
+                                titulo: "Presupuesto de tratamiento",
+                                ariaLabel: "Abrir video tutorial de presupuesto de tratamiento",
+                            }}
+                            tutorial={TutorialGuiadoPresupuesto}
+                            tutorialProps={{ ariaLabel: "Iniciar el tutorial guiado del presupuesto de tratamiento" }}
                             className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
-                        />
-                        <TutorialGuiadoPresupuesto
-                            ariaLabel="Iniciar el tutorial guiado del presupuesto de tratamiento"
-                            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
-                            claseIcono="flex size-4 shrink-0 items-center justify-center text-[#6E56CF]"
                         />
                     </div>
                 </div>

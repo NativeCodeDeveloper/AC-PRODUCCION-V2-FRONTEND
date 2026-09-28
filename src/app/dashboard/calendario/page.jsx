@@ -22,7 +22,7 @@ import { AppointmentDrawer } from "@/Componentes/AppointmentDrawer";
 import { AppointmentCard } from "@/Componentes/AppointmentCard";
 import { StatusFilterChips } from "@/Componentes/StatusFilterChips";
 import { getStateTokens } from "@/lib/designTokens";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import TutorialGuiadoCalendario from "@/Componentes/TutorialGuiadoCalendario";
 import { useTour } from "@/ContextosGlobales/TourContext";
 import { marcarReservaDeTour } from "@/lib/tourReserva";
@@ -2400,15 +2400,14 @@ function CalendarioContent() {
                             <span>Ver Fichas</span>
                         </button>
                         )}
-                        <BotonVideoTutorial
-                            videoId="ga44dJoW62c"
-                            titulo="Calendario y reservas"
-                            ariaLabel="Abrir video tutorial del calendario de reservas"
-                            className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
-                        />
-                        <TutorialGuiadoCalendario
-                            etiqueta="Tutorial Guiado"
-                            ariaLabel="Iniciar el tutorial guiado del proceso de agendamiento"
+                        <BotonAyuda
+                            video={{
+                                videoId: "ga44dJoW62c",
+                                titulo: "Calendario y reservas",
+                                ariaLabel: "Abrir video tutorial del calendario de reservas",
+                            }}
+                            tutorial={TutorialGuiadoCalendario}
+                            tutorialProps={{ ariaLabel: "Iniciar el tutorial guiado del proceso de agendamiento" }}
                             className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
                         />
                         <button

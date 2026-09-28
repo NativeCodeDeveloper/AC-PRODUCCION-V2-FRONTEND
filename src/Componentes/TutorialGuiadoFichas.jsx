@@ -24,6 +24,33 @@ const TOUR_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
 
 const GRUPO_LABEL = "Ficha del paciente";
 
+/**
+ * Ancla del paso. Los pasos con `abrirDetalles` apuntan al <summary> del panel,
+ * NO al <details> completo.
+ *
+ * Por qué: al abrirse, el panel mide lo que mida su contenido. El "Historial de
+ * Citas" de un paciente con 30 citas pasa de 120px a ~1300px, contra un viewport
+ * de ~700px. Con un ancla más alta que la pantalla driver.js no encuentra hueco
+ * ni arriba ni abajo, así que no puede honrar el `side: "top"` configurado:
+ * termina clavando el popover en el borde superior — encima del mismo encabezado
+ * que está explicando — y el recorte del overlay se sale por arriba y por abajo,
+ * de modo que no se ve ningún recuadro enmarcando nada. Eso es el "desfase".
+ *
+ * El <summary> mide ~120px siempre, tenga el paciente 3 citas o 300, así que el
+ * popover queda pegado al encabezado y el contenido recién abierto se ve justo
+ * debajo. driver.js acepta una función como `element` y la resuelve en cada
+ * medición, así que el ancla se calcula al vuelo.
+ */
+function anclaDelPaso(step) {
+    if (!step.selector) return undefined;
+    if (!step.abrirDetalles) return step.selector;
+    return () => {
+        const panel = document.querySelector(step.selector);
+        if (!panel) return null;
+        return panel.querySelector(":scope > summary") || panel;
+    };
+}
+
 // Puntos de progreso del popover: uno por paso (el tour principal agrupa por
 // sección; acá el recorrido es tan corto que cada paso merece el suyo). El
 // estado "pending" no tiene clase propia: es el gris base de .ac-dot.
@@ -86,7 +113,7 @@ export default function TutorialGuiadoFichas({
             // solo en vez de dejar el tour congelado.
             skipMissingElement: true,
             steps: TOUR_FICHAS_STEPS.map((step, index) => ({
-                element: step.selector ?? undefined,
+                element: anclaDelPaso(step),
                 popover: {
                     side: step.side || "top",
                     align: step.align || "start",
@@ -104,12 +131,24 @@ export default function TutorialGuiadoFichas({
                 // con la altura del panel cerrado. La apertura es sincrónica
                 // (los <details> de esta página no animan su altura), así que
                 // la medición que driver hace a continuación ya es la final.
-                if (step.abrirDetalles && element?.tagName === "DETAILS" && !element.open) {
-                    element.open = true;
-                    // Red de seguridad: re-medir cuando el layout termine de
-                    // asentarse, por si algo del contenido empuja la fila.
-                    window.setTimeout(() => driverRef.current?.refresh(), 320);
-                }
+                // `element` es el <summary> (ver anclaDelPaso), así que el panel
+                // a abrir es su <details> contenedor.
+                if (!step.abrirDetalles) return;
+                const panel = element?.closest?.("details");
+                if (panel && !panel.open) panel.open = true;
+            },
+            onHighlighted: (element, step) => {
+                // Red de seguridad: re-medir una vez que el layout se asentó,
+                // por si el contenido recién abierto empujó la fila.
+                //
+                // Va en `onHighlighted` y NO en un setTimeout dentro de
+                // `onHighlightStarted`: driver.js anima el salto entre pasos
+                // durante 400ms y recién al terminar registra el elemento nuevo
+                // como activo. Un `refresh()` a los 320ms cae en plena animación
+                // y reposiciona el popover contra el elemento ANTERIOR — dejaba
+                // el globo flotando ~240px más arriba, apuntando al panel de
+                // "Filtros" en vez de al encabezado del historial.
+                if (step.abrirDetalles) driverRef.current?.refresh();
             },
             onCloseClick: () => instancia.destroy(),
             onDestroyed: () => {

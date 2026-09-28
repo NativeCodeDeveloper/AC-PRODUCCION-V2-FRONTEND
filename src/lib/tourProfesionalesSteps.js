@@ -81,8 +81,8 @@ export const TOUR_PROFESIONALES_STEPS = [
   {
     id: "profesionales-tour-descripcion",
     selector: '[data-tour="profesional-descripcion"]',
-    title: "Descripción o especialidad",
-    description: "La <strong>descripción</strong> complementa la información de la agenda —la especialidad, por ejemplo— y también aparece en los documentos.",
+    title: "Profesión / Especialidad",
+    description: "El <strong>rótulo</strong> de la agenda: \"Cirujano dentista\", \"Ortodoncista\", \"Matrona\". Aparece en los documentos y en el sitio público, así que tiene un tope de <strong>65 caracteres</strong> — es un cargo, no una reseña.",
     side: "bottom",
   },
   {

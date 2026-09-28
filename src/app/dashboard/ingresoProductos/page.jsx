@@ -1,7 +1,7 @@
 "use client";
 import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useState, useEffect } from "react";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import TutorialGuiadoProductos from "@/Componentes/TutorialGuiadoProductos";
 import {
     Table,
@@ -431,17 +431,15 @@ useEffect(() => {
                         >
                             Ir a presupuestos
                         </a>
-                        <BotonVideoTutorial
-                            videoId="RUGGZeSXmFk"
-                            titulo="Prestaciones y servicios"
-                            etiqueta="Video tutorial"
-                            ariaLabel="Abrir video tutorial de prestaciones y servicios"
+                        <BotonAyuda
+                            video={{
+                                videoId: "RUGGZeSXmFk",
+                                titulo: "Prestaciones y servicios",
+                                ariaLabel: "Abrir video tutorial de prestaciones y servicios",
+                            }}
+                            tutorial={TutorialGuiadoProductos}
+                            tutorialProps={{ ariaLabel: "Iniciar el tutorial guiado de prestaciones y servicios" }}
                             className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
-                        />
-                        <TutorialGuiadoProductos
-                            ariaLabel="Iniciar el tutorial guiado de prestaciones y servicios"
-                            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-[#EDE9FE] hover:bg-[#F3F0FF] hover:text-[#6E56CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E56CF] focus-visible:ring-offset-2"
-                            claseIcono="flex size-4 shrink-0 items-center justify-center text-[#6E56CF]"
                         />
                     </div>
                 </div>

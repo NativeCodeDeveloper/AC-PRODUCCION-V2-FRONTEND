@@ -725,7 +725,11 @@ export function TourProvider({ children }) {
                         botonOmitir.type = "button";
                         botonOmitir.textContent = "Omitir";
                         botonOmitir.setAttribute("aria-label", "Omitir este paso del tutorial");
-                        botonOmitir.className = "ac-tour-omitir-btn !border-amber-200 !bg-amber-50 !text-amber-800 hover:!bg-amber-100 focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-amber-400";
+                        // El estilo vive en globals.css (`.ac-tour-omitir-btn`) junto
+                        // al de "Siguiente" y "Atrás", no en overrides `!important`
+                        // acá: es el tercer botón del mismo footer y su jerarquía
+                        // visual solo se entiende al lado de los otros dos.
+                        botonOmitir.className = "ac-tour-omitir-btn";
                         botonOmitir.addEventListener("click", () => avanzarDesdePaso(true), { once: true });
 
                         // Algunos pasos interactivos no muestran los botones
