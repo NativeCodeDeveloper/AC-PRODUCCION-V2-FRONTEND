@@ -14,6 +14,7 @@ import {
   Home,
   Image as ImageIcon,
   LayoutGrid,
+  LifeBuoy,
   Lock,
   Menu,
   MonitorSmartphone,
@@ -26,6 +27,8 @@ import {
   X,
 } from "lucide-react";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
+
+const URL_SOPORTE = "https://wa.me/56932912943?text=Hola%20tengo%20una%20duda%20de%20soporte%20de%20AgendaClinica";
 
 const ICONS = {
   home: Home,
@@ -194,6 +197,21 @@ export default function MobileNav() {
                   </div>
                 ))
               )}
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-2">
+                <Link
+                  href={URL_SOPORTE}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-[13px] font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+                    <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="flex-1 leading-tight">Soporte</span>
+                </Link>
+              </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-2">
                 <Link

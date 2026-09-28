@@ -149,7 +149,7 @@ export default function Portada() {
   return (
     <section
       id="inicio"
-      className="relative w-full overflow-hidden -mt-24 md:-mt-0.5 min-h-screen flex flex-col items-center justify-center pt-[176px] md:pt-20 pb-10"
+      className="relative w-full overflow-hidden -mt-24 md:-mt-0.5 min-h-screen flex flex-col items-center justify-center bg-slate-50 pt-[176px] md:pt-20 pb-10"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

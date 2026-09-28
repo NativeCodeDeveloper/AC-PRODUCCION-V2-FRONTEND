@@ -30,7 +30,7 @@ export default function Navbar() {
       {/* Navbar Pill */}
       <div
         className={[
-          "pointer-events-auto flex items-center justify-between gap-8 rounded-full border transition-all duration-500 lg:gap-14",
+          "pointer-events-auto flex items-center justify-between gap-8 rounded-full border transition-all duration-500 lg:gap-14 group-has-[#inicio]:border-white/70 group-has-[#inicio]:bg-white/55 group-has-[#inicio]:shadow-[0_12px_40px_rgba(15,23,42,0.12)] group-has-[#inicio]:ring-1 group-has-[#inicio]:ring-white/60 group-has-[#inicio]:backdrop-blur-2xl",
           scrolled
             ? "bg-white/70 backdrop-blur-xl border-slate-200/40 shadow-md shadow-slate-200/10 py-2.5 px-4 sm:px-6"
             : "bg-transparent border-transparent shadow-none py-3.5 px-4 sm:px-6"
@@ -76,7 +76,7 @@ export default function Navbar() {
       {/* Floating Mobile Dropdown */}
       <div
         className={[
-          "pointer-events-auto mt-4 w-full max-w-6xl overflow-hidden rounded-4xl border border-slate-200/60 bg-white/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out origin-top lg:hidden",
+          "pointer-events-auto mt-4 w-full max-w-6xl overflow-hidden rounded-4xl border border-slate-200/60 bg-white/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-out origin-top lg:hidden group-has-[#inicio]:border-white/70 group-has-[#inicio]:bg-white/75 group-has-[#inicio]:backdrop-blur-2xl",
           isOpen ? "max-h-105 opacity-100 scale-y-100" : "max-h-0 opacity-0 scale-y-95 border-transparent"
         ].join(" ")}
       >

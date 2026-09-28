@@ -50,7 +50,7 @@ function avisoDeFaltantes(faltantes) {
   return `Falta ${faltantes.slice(0, -1).join(", ")} ${conjuncion} ${ultimo}.`;
 }
 
-export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar, onGuardada }) {
+export default function EditarFichaModal({ abierto, id_ficha, paciente, idProfesionalAgendaAsignada, usuarioCargado, onCerrar, onGuardada }) {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const [plantillas, setPlantillas] = useState([]);
@@ -69,6 +69,12 @@ export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar
   const [numeroFicha, setNumeroFicha] = useState("");
 
   const listaProfesionales = useProfesionales();
+  const profesionalAsignado = idProfesionalAgendaAsignada
+    ? profesionalPorId(listaProfesionales, idProfesionalAgendaAsignada)
+    : null;
+  const profesionalTextoParaGuardar = idProfesionalAgendaAsignada
+    ? etiquetaProfesionalConRut(profesionalAsignado)
+    : profesionalTexto;
 
   const limpiar = useCallback(() => {
     setIdPlantilla("");
@@ -234,8 +240,10 @@ export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar
       nuevosErrores.fecha = "Seleccione la fecha de la consulta.";
       pendientes.push("ingresar la fecha de atención");
     }
-    if (!profesionalTexto.trim()) {
-      nuevosErrores.profesional = "Seleccione el profesional a cargo.";
+    if (!usuarioCargado || !profesionalTextoParaGuardar.trim()) {
+      nuevosErrores.profesional = idProfesionalAgendaAsignada
+        ? "No se encontró el profesional asociado a tu agenda."
+        : "Seleccione el profesional a cargo.";
       pendientes.push("seleccionar el profesional a cargo");
     }
 
@@ -262,7 +270,7 @@ export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar
           tipoAtencion: "",
           motivoConsulta: "",
           signosVitales: "",
-          observaciones: profesionalTexto,
+          observaciones: profesionalTextoParaGuardar,
           anotacionConsulta: "",
           anamnesis: "",
           diagnostico: "",
@@ -339,7 +347,7 @@ export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar
           <button
             type="button"
             onClick={guardar}
-            disabled={guardando || cargandoFicha}
+            disabled={guardando || cargandoFicha || !usuarioCargado || Boolean(idProfesionalAgendaAsignada && !profesionalAsignado)}
             className="flex h-11 items-center justify-center gap-2 rounded-xl bg-black px-6 text-[14px] font-semibold text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
           >
             {guardando ? (
@@ -406,24 +414,36 @@ export default function EditarFichaModal({ abierto, id_ficha, paciente, onCerrar
                 etiqueta="Profesional a cargo"
                 requerido
                 error={errores.profesional}
-                ayuda={profesionalTexto || "El RUT se completa automáticamente."}
+                ayuda={profesionalTextoParaGuardar || (idProfesionalAgendaAsignada
+                  ? "No se encontró el profesional asociado a tu agenda."
+                  : "El RUT se completa automáticamente.")}
               >
-                <ShadcnSelect
-                  nombreDefault="Seleccionar profesional..."
-                  className="h-11 w-full rounded-xl border-slate-200 bg-white text-sm"
-                  value={idProfesional}
-                  opciones={listaProfesionales.map((p) => ({
-                    value: String(p.id_profesional),
-                    label: p.nombreProfesional,
-                  }))}
-                  onChange={(value) => {
-                    setIdProfesional(value);
-                    setProfesionalTexto(
-                      etiquetaProfesionalConRut(profesionalPorId(listaProfesionales, value))
-                    );
-                    setErrores((prev) => ({ ...prev, profesional: undefined }));
-                  }}
-                />
+                {!usuarioCargado || idProfesionalAgendaAsignada ? (
+                  <div className="flex h-11 w-full items-center rounded-xl border border-violet-200 bg-violet-50 px-3 text-sm font-medium text-violet-900">
+                    {!usuarioCargado
+                      ? "Cargando usuario..."
+                      : profesionalAsignado?.nombreProfesional || (listaProfesionales.length > 0
+                        ? "Profesional asignado no disponible"
+                        : "Cargando profesional asignado...")}
+                  </div>
+                ) : (
+                  <ShadcnSelect
+                    nombreDefault="Seleccionar profesional..."
+                    className="h-11 w-full rounded-xl border-slate-200 bg-white text-sm"
+                    value={idProfesional}
+                    opciones={listaProfesionales.map((p) => ({
+                      value: String(p.id_profesional),
+                      label: p.nombreProfesional,
+                    }))}
+                    onChange={(value) => {
+                      setIdProfesional(value);
+                      setProfesionalTexto(
+                        etiquetaProfesionalConRut(profesionalPorId(listaProfesionales, value))
+                      );
+                      setErrores((prev) => ({ ...prev, profesional: undefined }));
+                    }}
+                  />
+                )}
               </CampoFormulario>
             </div>
 

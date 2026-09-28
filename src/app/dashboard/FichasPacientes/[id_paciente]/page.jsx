@@ -143,7 +143,7 @@ function sanitizarNombreArchivo(valor) {
 export default function Paciente() {
 
     const {id_paciente} = useParams();
-    const { user } = useUser();
+    const { user, isLoaded: usuarioCargado } = useUser();
     const empresaNombre = useEmpresaNombre();
     const [detallePaciente, setDetallePaciente] = useState([])
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -1706,6 +1706,8 @@ export default function Paciente() {
                 abierto={modalFichaAbierto}
                 paciente={pacienteActual}
                 id_paciente={id_paciente}
+                idProfesionalAgendaAsignada={String(user?.publicMetadata?.idProfesionalAgenda || "").trim()}
+                usuarioCargado={usuarioCargado}
                 onCerrar={() => setModalFichaAbierto(false)}
                 onGuardada={() => listarFichasClinicasPaciente(id_paciente)}
             />
@@ -1714,6 +1716,8 @@ export default function Paciente() {
                 abierto={fichaEnEdicion !== null}
                 id_ficha={fichaEnEdicion}
                 paciente={pacienteActual}
+                idProfesionalAgendaAsignada={String(user?.publicMetadata?.idProfesionalAgenda || "").trim()}
+                usuarioCargado={usuarioCargado}
                 onCerrar={() => setFichaEnEdicion(null)}
                 onGuardada={() => listarFichasClinicasPaciente(id_paciente)}
             />

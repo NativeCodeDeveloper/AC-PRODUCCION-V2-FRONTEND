@@ -66,10 +66,11 @@ export default function Seccion3() {
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
   const [listaPublicaciones, setListaPublicaciones] = useState([]);
+  const [estadoPublicaciones, setEstadoPublicaciones] = useState("cargando");
   const API = process.env.NEXT_PUBLIC_API_URL;
 
-  // PRESCRIPTION: DO NOT ALTER BACKEND FETCH LOGIC
   async function listarPublicacionesSeccion3() {
+    setEstadoPublicaciones("cargando");
     try {
       const res = await fetch(`${API}/publicaciones/seleccionarPublicaciones`, {
         method: "GET",
@@ -78,17 +79,24 @@ export default function Seccion3() {
       });
 
       if (!res.ok) {
-        console.error("No se han podido listar publicaciones.");
         setListaPublicaciones([]);
+        setEstadoPublicaciones("error");
         return [];
       }
 
       const publicaciones = await res.json();
+      if (!Array.isArray(publicaciones)) {
+        setListaPublicaciones([]);
+        setEstadoPublicaciones("error");
+        return [];
+      }
+
       setListaPublicaciones(publicaciones);
+      setEstadoPublicaciones(publicaciones.length > 0 ? "listo" : "vacio");
       return publicaciones;
-    } catch (err) {
-      console.error("Problema al consultar backend desde la vista frontend:" + err);
+    } catch {
       setListaPublicaciones([]);
+      setEstadoPublicaciones("error");
       return [];
     }
   }
@@ -170,16 +178,34 @@ export default function Seccion3() {
                 <div className="relative lg:col-span-9">
                   <div ref={carouselRef} className="overflow-x-auto hide-scrollbar">
                     <motion.div className="flex gap-4 px-1 py-2">
-                      {publicaciones.length > 0
-                        ? publicaciones.map((item) => (
+                      {estadoPublicaciones === "cargando"
+                        ? [1, 2, 3].map((n) => <SkeletonCard key={n} />)
+                        : publicaciones.map((item) => (
                             <PublicationCard key={item.id} item={item} />
-                          ))
-                        : [1, 2, 3].map((n) => <SkeletonCard key={n} />)}
+                          ))}
                     </motion.div>
                   </div>
 
+                  {estadoPublicaciones === "vacio" && (
+                    <p className="py-12 text-center text-sm text-slate-500">
+                      Aún no hay publicaciones para mostrar.
+                    </p>
+                  )}
+                  {estadoPublicaciones === "error" && (
+                    <div className="py-12 text-center">
+                      <p className="text-sm text-slate-500">No se pudieron cargar las publicaciones.</p>
+                      <button
+                        type="button"
+                        onClick={listarPublicacionesSeccion3}
+                        className="mt-3 text-sm font-semibold text-slate-900 underline underline-offset-4 hover:text-slate-600"
+                      >
+                        Reintentar
+                      </button>
+                    </div>
+                  )}
+
                   {/* Nav left */}
-                  {!isAtStart && (
+                  {publicaciones.length > 0 && !isAtStart && (
                     <button
                       onClick={() => scroll("left")}
                       aria-label="Desplazar izquierda"
@@ -190,7 +216,7 @@ export default function Seccion3() {
                   )}
 
                   {/* Nav right */}
-                  {!isAtEnd && (
+                  {publicaciones.length > 0 && !isAtEnd && (
                     <button
                       onClick={() => scroll("right")}
                       aria-label="Desplazar derecha"

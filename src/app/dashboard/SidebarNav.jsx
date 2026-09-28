@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { LifeBuoy } from "lucide-react";
 import UserMenu from "./UserMenu";
 import NotificationBell from "@/components/NotificationBell";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
 import { useTour } from "@/ContextosGlobales/TourContext";
+
+const URL_SOPORTE = "https://wa.me/56932912943?text=Hola%20tengo%20una%20duda%20de%20soporte%20de%20AgendaClinica";
 
 const ICONS = {
   home: (
@@ -351,7 +354,9 @@ export default function SidebarNav() {
             </Link>
           </div>
         </div>
-
+        <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
+          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Soporte" />
+        </div>
       </>
     );
   }
@@ -391,6 +396,10 @@ export default function SidebarNav() {
             );
           })}
       </nav>
+
+      <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
+        <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Soporte" />
+      </div>
 
       {/* Pie de notificaciones — tarjeta flotante.
           Antes era una franja plana con una línea dura a todo el ancho. Ahora

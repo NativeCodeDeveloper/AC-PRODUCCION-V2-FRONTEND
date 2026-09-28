@@ -1,7 +1,9 @@
 const suscriptores = new Set();
 let pendientes = 0;
 let visible = false;
+let aperturaPendiente;
 let cierrePendiente;
+const ESPERA_PARA_MOSTRAR = 250;
 
 function publicar(valor) {
   if (visible === valor) return;
@@ -23,7 +25,12 @@ export function iniciarCarga() {
 
   clearTimeout(cierrePendiente);
   pendientes += 1;
-  publicar(true);
+  if (pendientes === 1 && !visible) {
+    aperturaPendiente = setTimeout(() => {
+      aperturaPendiente = undefined;
+      if (pendientes > 0) publicar(true);
+    }, ESPERA_PARA_MOSTRAR);
+  }
   let finalizada = false;
 
   return () => {
@@ -32,8 +39,10 @@ export function iniciarCarga() {
     pendientes -= 1;
 
     if (pendientes === 0) {
+      clearTimeout(aperturaPendiente);
+      aperturaPendiente = undefined;
       // Une peticiones encadenadas y permite que React pinte los datos recibidos.
-      cierrePendiente = setTimeout(() => publicar(false), 100);
+      if (visible) cierrePendiente = setTimeout(() => publicar(false), 100);
     }
   };
 }
