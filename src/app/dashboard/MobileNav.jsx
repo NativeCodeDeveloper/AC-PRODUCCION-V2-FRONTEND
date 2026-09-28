@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -8,6 +9,7 @@ import {
   CalendarDays,
   ClipboardPlus,
   Compass,
+  Download,
   FileText,
   FolderKanban,
   GraduationCap,
@@ -58,6 +60,58 @@ export default function MobileNav() {
   const sections = getVisibleDashboardSections(role);
   const name = user?.fullName || user?.firstName || "Usuario";
   const avatar = user?.imageUrl;
+
+  // ── Instalación como app (acceso directo) ──────────────────────────────────
+  // Android/Chrome disparan beforeinstallprompt y se puede abrir el diálogo
+  // nativo desde nuestro botón. iOS no lo permite: solo se puede guiar al
+  // usuario hacia Compartir → "Agregar a pantalla de inicio".
+  const [eventoInstalacion, setEventoInstalacion] = useState(null);
+  const [guiaInstalacion, setGuiaInstalacion] = useState(false);
+  const [appInstalada, setAppInstalada] = useState(false);
+  const [esIos, setEsIos] = useState(false);
+  const [montado, setMontado] = useState(false);
+
+  useEffect(() => {
+    setMontado(true);
+    const capturarEvento = (evento) => {
+      evento.preventDefault();
+      setEventoInstalacion(evento);
+    };
+    const alInstalar = () => setAppInstalada(true);
+    window.addEventListener("beforeinstallprompt", capturarEvento);
+    window.addEventListener("appinstalled", alInstalar);
+
+    const enStandalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      window.navigator?.standalone;
+    setAppInstalada(Boolean(enStandalone));
+    const agente = window.navigator.userAgent;
+    // iPadOS 13+ se hace pasar por Mac de escritorio; lo distinguimos por touch.
+    setEsIos(
+      /iPad|iPhone|iPod/.test(agente) ||
+        (agente.includes("Mac") && window.navigator.maxTouchPoints > 1)
+    );
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", capturarEvento);
+      window.removeEventListener("appinstalled", alInstalar);
+    };
+  }, []);
+
+  async function abrirInstalacion() {
+    setOpen(false);
+    if (eventoInstalacion) {
+      try {
+        eventoInstalacion.prompt();
+        await eventoInstalacion.userChoice;
+        setEventoInstalacion(null);
+        return;
+      } catch {
+        setEventoInstalacion(null);
+      }
+    }
+    setGuiaInstalacion(true);
+  }
 
   return (
     <div className="md:hidden sticky top-0 z-40">
@@ -213,6 +267,21 @@ export default function MobileNav() {
                 </Link>
               </div>
 
+              {!appInstalada && (
+                <div className="rounded-2xl border border-slate-200 bg-white p-2">
+                  <button
+                    type="button"
+                    onClick={abrirInstalacion}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[13px] font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+                      <Download className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <span className="flex-1 text-left leading-tight">Instalar aplicación</span>
+                  </button>
+                </div>
+              )}
+
               <div className="rounded-2xl border border-slate-200 bg-white p-2">
                 <Link
                   href="/"
@@ -232,6 +301,83 @@ export default function MobileNav() {
           </div>
         </>
       )}
+
+      {/* Guía de instalación: portal al body para no quedar atrapado en el
+          stacking context del navbar (z-40) bajo el orbe de Cortex. */}
+      {guiaInstalacion &&
+        montado &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[95] flex items-end justify-center bg-slate-950/50 p-4 backdrop-blur-[2px] sm:items-center"
+            onClick={() => setGuiaInstalacion(false)}
+          >
+            <div
+              role="dialog"
+              aria-label="Instalar aplicación"
+              className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+              onClick={(evento) => evento.stopPropagation()}
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F3F0FF] text-[#6E56CF]">
+                  <Download className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-[15px] font-bold text-slate-900">Instalar AgendaClinica</p>
+                  <p className="text-[12px] text-slate-500">Acceso directo en tu pantalla de inicio</p>
+                </div>
+              </div>
+
+              {esIos ? (
+                <>
+                  <ol className="mt-5 space-y-3">
+                    <li className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EDE9FE] text-[11px] font-bold text-[#6E56CF]">1</span>
+                      <span className="text-[13px] leading-snug text-slate-600">
+                        Toca el botón <span className="inline-flex translate-y-[3px] items-center rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-500"><svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 8H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-2" /><path d="M12 15V3" /><path d="M8.5 6.5L12 3l3.5 3.5" /></svg></span> <strong className="font-semibold text-slate-800">Compartir</strong> en la barra de Safari.
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EDE9FE] text-[11px] font-bold text-[#6E56CF]">2</span>
+                      <span className="text-[13px] leading-snug text-slate-600">Elige <strong className="font-semibold text-slate-800">“Agregar a pantalla de inicio”</strong>.</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EDE9FE] text-[11px] font-bold text-[#6E56CF]">3</span>
+                      <span className="text-[13px] leading-snug text-slate-600">Confirma tocando <strong className="font-semibold text-slate-800">“Agregar”</strong>.</span>
+                    </li>
+                  </ol>
+                  <p className="mt-4 text-[11px] leading-snug text-slate-400">
+                    En iPhone la instalación solo puede hacerse desde el menú Compartir del navegador; el sistema no permite automatizarlo.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <ol className="mt-5 space-y-3">
+                    <li className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EDE9FE] text-[11px] font-bold text-[#6E56CF]">1</span>
+                      <span className="text-[13px] leading-snug text-slate-600">Abre el menú de tu navegador (<strong className="font-semibold text-slate-800">⋮</strong> en Android).</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EDE9FE] text-[11px] font-bold text-[#6E56CF]">2</span>
+                      <span className="text-[13px] leading-snug text-slate-600">Elige <strong className="font-semibold text-slate-800">“Instalar aplicación”</strong> o <strong className="font-semibold text-slate-800">“Agregar a pantalla de inicio”</strong>.</span>
+                    </li>
+                  </ol>
+                  <p className="mt-4 text-[11px] leading-snug text-slate-400">
+                    Tu navegador no permite abrir la instalación automáticamente en este momento.
+                  </p>
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setGuiaInstalacion(false)}
+                className="mt-5 h-11 w-full rounded-full bg-[#F3F0FF] text-[13px] font-bold uppercase tracking-wide text-[#6E56CF] transition-all hover:brightness-95"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
