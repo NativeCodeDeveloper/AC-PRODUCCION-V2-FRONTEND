@@ -14,9 +14,14 @@ export default function SecretariaRouteGuard({ children }) {
   const accesoDenegado = isLoaded && role === "secretaria" && !canAccessDashboardPath(role, pathname);
 
   useEffect(() => {
-    if (accesoDenegado) {
-      void signOut({ redirectUrl: "/sign-in" });
-    }
+    if (!accesoDenegado) return;
+
+    const irALogin = () => window.location.replace("/sign-in");
+
+    void signOut().finally(irALogin);
+    window.addEventListener("pageshow", irALogin);
+
+    return () => window.removeEventListener("pageshow", irALogin);
   }, [accesoDenegado, signOut]);
 
   if (accesoDenegado) {

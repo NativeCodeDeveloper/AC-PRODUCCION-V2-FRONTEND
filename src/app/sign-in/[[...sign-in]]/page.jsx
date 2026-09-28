@@ -35,7 +35,7 @@ export default function Page() {
     if (!isAuthLoaded || !isSignedIn) return;
 
     if (accesoNoAutorizado) {
-      void signOut({ redirectUrl: "/sign-in" });
+      void signOut().finally(() => window.location.replace("/sign-in"));
       return;
     }
 

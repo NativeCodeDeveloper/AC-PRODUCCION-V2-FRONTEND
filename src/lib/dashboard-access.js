@@ -631,7 +631,7 @@ const DASHBOARD_ROLE_DETAILS = {
     ],
   },
   basico: {
-    label: "Basico",
+    label: "Profesional Clínico (Básico)",
     description: "Combina agenda, fichas y configuración básica, sin documentación médica.",
     recommendedFor: "Centros que necesitan una operación general sin recetas ni exámenes.",
     access: [
