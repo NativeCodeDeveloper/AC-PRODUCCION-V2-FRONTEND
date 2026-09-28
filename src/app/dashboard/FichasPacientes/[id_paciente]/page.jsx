@@ -27,6 +27,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {InfoButton} from "@/Componentes/InfoButton";
 import { formatRut, cleanRut, getStateTokens } from "@/lib/designTokens";
+import { rutPerteneceAOtroPaciente } from "@/lib/validarRutPaciente";
 import {
     canAccessOdontograma,
     canAccessRecetasEnFicha,
@@ -217,6 +218,8 @@ export default function Paciente() {
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
     const [rut, setRut] = useState("");
+    const [guardandoPaciente, setGuardandoPaciente] = useState(false);
+    const guardadoPacienteEnCurso = useRef(false);
     const [nacimiento, setNacimiento] = useState("");
     const [sexo, setSexo] = useState("");
     const [prevision, setPrevision] = useState("");
@@ -480,6 +483,7 @@ export default function Paciente() {
     }
 
     async function actualizarDatosPacientes(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais, id_paciente) {
+        if (guardadoPacienteEnCurso.current) return;
 
         let prevision_id = null;
         const pacienteBase = detallePaciente[0] || {};
@@ -510,6 +514,20 @@ export default function Paciente() {
                 !id_paciente
             ) {
                 return toast.error("Debe llenar todos los campos para proceder con la actualziacion")
+            }
+
+            guardadoPacienteEnCurso.current = true;
+            setGuardandoPaciente(true);
+
+            let rutDuplicado;
+            try {
+                rutDuplicado = await rutPerteneceAOtroPaciente({ api: API, rut: rutNormalizado, idPaciente: id_paciente });
+            } catch (errorValidacion) {
+                return toast.error(errorValidacion.message);
+            }
+
+            if (rutDuplicado) {
+                return toast.error("El RUT ingresado ya pertenece a otro paciente. Ingresa un RUT diferente.");
             }
 
             const payload = {
@@ -576,6 +594,9 @@ export default function Paciente() {
         } catch (err) {
             console.log(err);
             return toast.error("Ha ocurrido un problema en el servidor")
+        } finally {
+            guardadoPacienteEnCurso.current = false;
+            setGuardandoPaciente(false);
         }
     }
 
@@ -1382,7 +1403,7 @@ export default function Paciente() {
                                 </div>
                                 <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-slate-200 bg-slate-50/95 px-4 py-2.5 sm:px-5">
                                     <button onClick={() => setMostrarFormulario(false)} className="h-9 rounded-lg border border-slate-200 px-4 text-xs font-bold text-slate-500 transition-colors hover:bg-slate-50">Cancelar</button>
-                                    <button onClick={() => actualizarDatosPacientes(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais, id_paciente)} className="h-9 rounded-lg bg-black px-5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-slate-800">Guardar Cambios</button>
+                                    <button disabled={guardandoPaciente} onClick={() => actualizarDatosPacientes(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais, id_paciente)} className="h-9 rounded-lg bg-black px-5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60">{guardandoPaciente ? "Verificando y guardando..." : "Guardar Cambios"}</button>
                                 </div>
                             </div>
                             </div>

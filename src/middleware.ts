@@ -28,8 +28,14 @@ export default clerkMiddleware(async (auth, req) => {
   const role = getDashboardRoleFromClaims(sessionClaims);
   const pathname = req.nextUrl.pathname;
 
-  if (isDashboardRoute(req) && role === "cancelado" && pathname !== SUBSCRIPTION_CANCELLED_PATH) {
-    return NextResponse.redirect(new URL(SUBSCRIPTION_CANCELLED_PATH, req.url));
+  if (isDashboardRoute(req) && role === "cancelado") {
+    if (pathname === "/dashboard") {
+      return NextResponse.redirect(new URL(SUBSCRIPTION_CANCELLED_PATH, req.url));
+    }
+
+    if (pathname !== SUBSCRIPTION_CANCELLED_PATH) {
+      return NextResponse.redirect(new URL("/sign-in?unauthorized=1", req.url));
+    }
   }
 
   if (isDashboardRoute(req) && role === "secretaria" && !canAccessDashboardPath(role, pathname)) {

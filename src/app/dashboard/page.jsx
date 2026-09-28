@@ -176,6 +176,40 @@ export default function AgendaCitas() {
         return String(hora).slice(0, 5);
     }
 
+    const MESES_CORTOS = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+    const DIAS_SEMANA = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const DIAS_SEMANA_CORTOS = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+
+    // Día, mes corto, año y día de la semana para la insignia de fecha de la tarjeta.
+    function descomponerFechaDashboard(fecha) {
+        if (!fecha) return null;
+
+        const coincidencia = String(fecha).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (coincidencia) {
+            const [, anio, mes, dia] = coincidencia;
+            // Construida con partes locales para que el día de la semana no se corra por zona horaria.
+            const fechaLocal = new Date(Number(anio), Number(mes) - 1, Number(dia));
+            return {
+                dia,
+                mesCorto: MESES_CORTOS[Number(mes) - 1] || "",
+                anio,
+                diaSemana: Number.isNaN(fechaLocal.getTime()) ? "" : DIAS_SEMANA[fechaLocal.getDay()],
+                diaCorto: Number.isNaN(fechaLocal.getTime()) ? "" : DIAS_SEMANA_CORTOS[fechaLocal.getDay()],
+            };
+        }
+
+        const fechaLocal = new Date(fecha);
+        if (Number.isNaN(fechaLocal.getTime())) return null;
+
+        return {
+            dia: String(fechaLocal.getDate()).padStart(2, "0"),
+            mesCorto: MESES_CORTOS[fechaLocal.getMonth()] || "",
+            anio: String(fechaLocal.getFullYear()),
+            diaSemana: DIAS_SEMANA[fechaLocal.getDay()],
+            diaCorto: DIAS_SEMANA_CORTOS[fechaLocal.getDay()],
+        };
+    }
+
     function obtenerNombreProfesionalReserva(reserva) {
         if (reserva?.nombreProfesional) return reserva.nombreProfesional;
         const profesional = listaProfesionales.find(
@@ -221,6 +255,12 @@ export default function AgendaCitas() {
 
         rutFormateado = `${cuerpo}${rutFormateado}-${dv}`;
         return rutFormateado;
+    }
+
+    // RUT con puntos y guión para la tarjeta (ej: 8.881.516-1); cae al formato simple si no aplica.
+    function formatearRutTarjeta(rutValor) {
+        if (esRutDesconocido(rutValor)) return formatearRutVisible(rutValor);
+        return `RUT: ${formatearRutBusqueda(rutValor) || "Sin registro"}`;
     }
 
     async function buscarPacientePorRut(rutPaciente) {
@@ -693,17 +733,25 @@ export default function AgendaCitas() {
     }
 
     function renderMenuAccionesReserva(data, opciones = {}) {
-        const { menuPositionClass = "left-0 mt-2" } = opciones;
+        // textoBoton/estiloBoton/claseBoton: variantes de presentación (la tarjeta
+        // usa un botón genérico "Cambiar estado"; la tabla muestra el estado con
+        // su paleta). El desplegable es idéntico en ambos casos.
+        const {
+            menuPositionClass = "left-0 mt-2",
+            textoBoton,
+            estiloBoton,
+            claseBoton = "h-9 w-[172px] px-4",
+        } = opciones;
         return (
             <div className="relative">
                 <button
                     onClick={() => setMenuEstadoAbiertoId(menuEstadoAbiertoId === data.id_reserva ? null : data.id_reserva)}
-                    className="h-9 w-[172px] px-4 rounded-full flex items-center justify-between gap-2 transition-all hover:brightness-95 disabled:opacity-50"
-                    style={obtenerEstiloBotonEstado(data.estadoReserva)}
+                    className={`${claseBoton} rounded-full flex items-center justify-between gap-2 transition-all hover:brightness-95 disabled:opacity-50`}
+                    style={estiloBoton || obtenerEstiloBotonEstado(data.estadoReserva)}
                     disabled={actualizandoReservaId === data.id_reserva}
                 >
                     <span className="truncate text-[11px] font-bold uppercase tracking-wide leading-none">
-                        {actualizandoReservaId === data.id_reserva ? "Cargando..." : data.estadoReserva || "Reservada"}
+                        {actualizandoReservaId === data.id_reserva ? "Cargando..." : textoBoton || data.estadoReserva || "Reservada"}
                     </span>
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 shrink-0 opacity-60 transition-transform duration-200 ${menuEstadoAbiertoId === data.id_reserva ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
@@ -756,7 +804,7 @@ export default function AgendaCitas() {
     // estén ocultas por CSS en desktop, siguen en el DOM y aparecerían primero en
     // un document.querySelector — driver.js mediría un elemento de 0x0 y dejaría
     // el recuadro y el popover tirados en una esquina.
-    function renderBotonFichaReserva(data, {esAnclaTour = false} = {}) {
+    function renderBotonFichaReserva(data, {esAnclaTour = false, conEtiqueta = false, claseBoton} = {}) {
         if (!canSeeFichasClinicas) {
             return null;
         }
@@ -766,7 +814,9 @@ export default function AgendaCitas() {
                 data-tour={esAnclaTour ? "dashboard-ver-ficha" : undefined}
                 onClick={() => verFichaClinicaPaciente(data)}
                 disabled={abriendoFichaReservaId === data.id_reserva}
-                className="h-10 w-10 mx-auto rounded-xl bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-100 transition-all flex items-center justify-center shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                className={claseBoton || (conEtiqueta
+                    ? "h-11 px-5 rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                    : "h-10 w-10 mx-auto rounded-xl bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-100 transition-all flex items-center justify-center shadow-sm disabled:cursor-not-allowed disabled:opacity-60")}
                 title="Ver Ficha Clínica"
             >
                 {abriendoFichaReservaId === data.id_reserva ? (
@@ -780,6 +830,7 @@ export default function AgendaCitas() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 )}
+                {conEtiqueta ? <span>Ver ficha</span> : null}
             </button>
         );
     }
@@ -813,7 +864,7 @@ export default function AgendaCitas() {
     return (
         <div className="min-h-screen bg-[#FAFAFB] flex flex-col">
             <ToasterClient/>
-            <div className="flex-1 mx-auto w-full max-w-[1600px] px-4 py-6 md:px-8 md:py-10 2xl:max-w-none">
+            <div className="flex-1 mx-auto w-full max-w-[1600px] px-3 py-4 md:px-8 md:py-10 2xl:max-w-none">
                 
                 {/* ── Header Principal y Resumen ── */}
                 <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-8">
@@ -986,14 +1037,14 @@ export default function AgendaCitas() {
 
                     {/* Tabla de Resultados */}
                     <div data-tour="dashboard-tabla-citas" className="overflow-visible rounded-[32px] border border-slate-200 bg-white shadow-sm">
-                        <div data-tour="dashboard-citas-header" className="flex items-center justify-between rounded-t-[32px] border-b border-slate-100 bg-slate-50/30 px-4 py-4 md:px-8 md:py-5">
-                            <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Citas Agendadas</h2>
-                            <div className="flex items-center gap-3">
-                                <span className="text-[11px] font-bold text-slate-400">{dataLista.length} {dataLista.length === 1 ? "cita" : "citas"}</span>
+                        <div data-tour="dashboard-citas-header" className="flex items-center justify-between gap-3 rounded-t-[32px] border-b border-slate-100 bg-slate-50/30 px-4 py-3.5 md:px-8 md:py-5">
+                            <h2 className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-slate-900 md:text-[11px] md:font-bold md:tracking-widest md:text-slate-500">Citas Agendadas</h2>
+                            <div className="flex items-center gap-2.5 md:gap-3">
+                                <span className="text-[13px] font-bold text-slate-400 md:text-[11px]">{dataLista.length} {dataLista.length === 1 ? "cita" : "citas"}</span>
                                 <button
                                     data-tour="dashboard-exportar-excel"
                                     onClick={exportarAExcel}
-                                    className="h-8 px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-bold hover:bg-slate-50 transition-all flex items-center gap-1.5"
+                                    className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 text-[12px] font-bold text-slate-600 transition-all hover:bg-slate-50 md:h-8 md:rounded-xl md:px-3 md:text-[11px]"
                                     title="Exportar a Excel"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -1003,7 +1054,7 @@ export default function AgendaCitas() {
                         </div>
 
                         {/* Vista móvil: tarjetas */}
-                        <div className="xl:hidden px-4 py-4 sm:px-6">
+                        <div className="xl:hidden px-3 py-3 sm:px-5">
                             {dataLista.length === 0 ? (
                                 <div className="py-20 text-center">
                                     <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1012,44 +1063,95 @@ export default function AgendaCitas() {
                                     <p className="text-[13px] text-slate-400 font-medium">No se encontraron citas para los criterios seleccionados.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-                                    {dataLista.map((data) => (
-                                        <article key={data.id_reserva} className="self-start overflow-visible rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <span className="inline-flex items-center rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-[13px] font-bold text-slate-900">
-                                                    {formatearFechaDashboard(data.fechaInicio)}
-                                                </span>
-                                                <span className="inline-flex items-center rounded-lg bg-[#F3F0FF] border border-[#EDE9FE] px-3 py-1.5 text-[13px] font-bold text-[#6E56CF]">
-                                                    {formatearHoraDashboard(data.horaInicio)}
-                                                </span>
-                                                <span className="inline-flex min-w-[96px] items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-bold" style={obtenerEstiloBadgeEstado(data.estadoReserva)}>
-                                                    {formatearEstadoVisible(data.estadoReserva)}
-                                                </span>
-                                            </div>
-                                            <div className="mt-4 space-y-3">
-                                                <div>
-                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Paciente</p>
-                                                    <p className="mt-1 text-lg font-bold text-slate-900">{data.nombrePaciente + " " + data.apellidoPaciente}</p>
-                                                    <p className="mt-0.5 text-[11px] font-medium text-slate-400">{formatearRutVisible(data.rut)}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Motivo de Atención</p>
-                                                    <p className="mt-1 text-base font-semibold text-slate-800">{data.motivo_reserva}</p>
-                                                    {canSeeReservationAmounts ? (
-                                                        <p className="mt-0.5 text-[13px] font-bold text-[#6E56CF]">${data.monto_reserva}</p>
+                                <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2 lg:gap-4">
+                                    {dataLista.map((data) => {
+                                        const fecha = descomponerFechaDashboard(data.fechaInicio);
+                                        const tokenEstado = getStateTokens(normalizarEstadoReserva(data.estadoReserva));
+                                        return (
+                                        <article key={data.id_reserva} className="self-start overflow-visible rounded-[20px] border border-slate-200 bg-white p-3.5 shadow-sm">
+                                            <div className="flex items-stretch gap-3.5">
+                                                {/* Insignia de fecha: abarca toda la altura de las filas */}
+                                                <div className="flex w-[74px] shrink-0 flex-col items-center justify-center rounded-2xl bg-[#F3F0FF] py-4 text-center">
+                                                    <span className="text-[30px] font-extrabold leading-none text-slate-900">{fecha?.dia ?? "—"}</span>
+                                                    <span className="mt-2 text-[11px] font-bold tracking-[0.22em] text-[#6E56CF]">{fecha?.mesCorto ?? ""}</span>
+                                                    <span className="mt-0.5 text-[10px] font-semibold text-slate-400">{fecha?.anio ?? ""}</span>
+                                                    {fecha?.diaCorto ? (
+                                                        <span className="mt-2 rounded-md bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#6E56CF]">{fecha.diaCorto}</span>
                                                     ) : null}
                                                 </div>
-                                                <div>
-                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Profesional</p>
-                                                    <p className="mt-1 text-[13px] font-semibold text-slate-600">{obtenerNombreProfesionalReserva(data)}</p>
+
+                                                {/* Detalle de la cita */}
+                                                <div className="min-w-0 flex-1 space-y-3">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                            </span>
+                                                            <div className="leading-tight">
+                                                                <p className="text-[16px] font-bold text-[#6E56CF]">{formatearHoraDashboard(data.horaInicio)}</p>
+                                                                <p className="mt-0.5 text-[13px] font-medium text-slate-400">{fecha?.diaSemana ?? ""}</p>
+                                                            </div>
+                                                        </div>
+                                                        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide" style={{ backgroundColor: tokenEstado.bg, color: tokenEstado.text, border: `1px solid ${tokenEstado.border}` }}>
+                                                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tokenEstado.dot }} />
+                                                            {formatearEstadoVisible(data.estadoReserva) || "reservada"}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2.5">
+                                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                            </svg>
+                                                        </span>
+                                                        <div className="min-w-0 leading-tight">
+                                                            <p className="truncate text-[16px] font-bold text-slate-900">{data.nombrePaciente + " " + data.apellidoPaciente}</p>
+                                                            <p className="mt-0.5 truncate text-[13px] font-medium text-slate-400">{formatearRutTarjeta(data.rut)}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2.5">
+                                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                        </span>
+                                                        <p className="min-w-0 flex-1 truncate text-[15px] font-medium text-slate-700">{data.motivo_reserva}</p>
+                                                        {canSeeReservationAmounts ? (
+                                                            <span className="shrink-0 text-[17px] font-extrabold text-slate-900">
+                                                                ${(Number(data.monto_reserva) || 0).toLocaleString("es-CL")}
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2.5">
+                                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v5a5 5 0 0010 0V3" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 13v2a4 4 0 008 0v-3" />
+                                                                <circle cx="18" cy="10" r="2" />
+                                                            </svg>
+                                                        </span>
+                                                        <p className="min-w-0 truncate text-[14px] font-medium text-slate-500">Con {obtenerNombreProfesionalReserva(data)}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                                {renderMenuAccionesReserva(data, { menuPositionClass: "left-0 mt-2" })}
-                                                {renderBotonFichaReserva(data)}
+                                            <div className="mt-4 flex items-center gap-3">
+                                                {renderMenuAccionesReserva(data, {
+                                                    textoBoton: "Cambiar estado",
+                                                    claseBoton: "h-12 w-[55%] min-w-[160px] max-w-[250px] px-5",
+                                                    estiloBoton: { backgroundColor: "#F3F0FF", color: "#6E56CF", border: "1px solid #EDE9FE" },
+                                                })}
+                                                {renderBotonFichaReserva(data, {
+                                                    conEtiqueta: true,
+                                                    claseBoton: "ml-auto flex h-12 min-w-[120px] max-w-[210px] flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60",
+                                                })}
                                             </div>
                                         </article>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

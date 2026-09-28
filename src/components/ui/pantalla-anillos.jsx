@@ -4,15 +4,17 @@ import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { iniciarCarga } from "@/lib/cargaGlobal";
 import MagicRings from "@/components/ui/magic-rings";
+import CloudLoader from "@/components/ui/quantum-cloud-loader";
 
 const suscribirMontaje = () => () => {};
 const obtenerMontaje = () => true;
 const obtenerMontajeServidor = () => false;
 
-// ── Pantallas de anillos (fondo blanco, a pantalla completa) ─────────────────
-// Puesta en escena común para que la pantalla de carga (src/app/loading.jsx),
-// la de 404 (src/app/not-found.jsx) y el preview de desarrollo
-// (/dashboard/preview-carga) se vean exactamente igual.
+// ── Pantallas a pantalla completa sobre fondo blanco ────────────────────────
+// La pantalla de carga (src/app/loading.jsx) muestra el logo con las
+// partículas quantum (quantum-cloud-loader.jsx); los anillos quedaron solo
+// para la de 404 (src/app/not-found.jsx). La vista de carga se comparte con
+// el preview de desarrollo (/dashboard/preview-carga).
 //
 // onClick es opcional: lo usa el preview para cerrar el overlay al hacer clic.
 
@@ -49,7 +51,7 @@ export function VistaPantallaCarga({ onClick }) {
       aria-label="Cargando Agenda Clínica"
       aria-busy="true"
     >
-      <MagicRings {...PROPS_ANILLOS}>
+      <div className="flex h-full flex-col items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/fonts/letrasLoading.png"
@@ -58,7 +60,9 @@ export function VistaPantallaCarga({ onClick }) {
           height={725}
           className="block h-auto w-[min(56vw,280px)] object-contain"
         />
-      </MagicRings>
+        {/* Partículas quantum bajo el logo */}
+        <CloudLoader />
+      </div>
     </div>
   );
 

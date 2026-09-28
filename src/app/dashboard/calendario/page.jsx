@@ -1304,7 +1304,7 @@ function CalendarioContent() {
                     toast.error("No fue posible identificar el profesional seleccionado. Vuelve a seleccionar la agenda.");
                     return false;
                 }
-                const res = await fetch(`${API}/reservaPacientes/insertarReservaPacienteFicha`, {
+                const res = await fetch(`${API}/reservaPacientes/insertarReservasMultiples`, {
                     method: "POST",
                     headers: { Accept: "application/json", "Content-Type": "application/json" },
                     mode: "cors",
@@ -1350,7 +1350,7 @@ function CalendarioContent() {
     // porque el horario y los datos del paciente son iguales en todas las fechas seleccionadas.
     async function crearReservaEnFecha({ nombrePaciente, apellidoPaciente, rutLimpio, telefono, correoNormalizado, fecha, horaInicio, horaFinalizacion, id_profesional, nombreProfesional, prestacion, modalidad, monto_reserva, motivo_reserva }) {
         try {
-            const res = await fetch(`${API}/reservaPacientes/insertarReservaPacienteFicha`, {
+            const res = await fetch(`${API}/reservaPacientes/insertarReservasMultiples`, {
                 method: "POST",
                 headers: { Accept: "application/json", "Content-Type": "application/json" },
                 mode: "cors",

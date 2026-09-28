@@ -3,7 +3,9 @@ let pendientes = 0;
 let visible = false;
 let aperturaPendiente;
 let cierrePendiente;
-const ESPERA_PARA_MOSTRAR = 250;
+// Solo se muestra el loader si la carga real supera este umbral; navegaciones
+// y peticiones más rápidas no llegan a verlo.
+const ESPERA_PARA_MOSTRAR = 600;
 
 function publicar(valor) {
   if (visible === valor) return;

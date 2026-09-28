@@ -9,6 +9,7 @@ import { PantallaCarga } from "@/components/ui/pantalla-anillos";
 
 /* SF Pro en Apple, Inter/Helvetica en otros */
 const SF = `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", Arial, sans-serif`;
+const BLOQUEO_ACCESO_RESTRINGIDO = "dashboard_acceso_restringido_denegado";
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 14 },
@@ -35,7 +36,8 @@ export default function Page() {
     if (!isAuthLoaded || !isSignedIn) return;
 
     if (accesoNoAutorizado) {
-      void signOut({ redirectUrl: "/sign-in" });
+      window.sessionStorage.setItem(BLOQUEO_ACCESO_RESTRINGIDO, "1");
+      void signOut().finally(() => window.location.replace("/sign-in"));
       return;
     }
 
@@ -58,6 +60,7 @@ export default function Page() {
       });
 
       if (res.status === "complete") {
+        window.sessionStorage.removeItem(BLOQUEO_ACCESO_RESTRINGIDO);
         await setActive({ session: res.createdSessionId });
         router.push("/dashboard");
       } else {

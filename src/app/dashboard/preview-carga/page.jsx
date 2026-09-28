@@ -29,8 +29,9 @@ export default function PreviewCargaPage() {
                 Preview — pantalla de carga
             </h1>
             <p className="mt-2 max-w-xl text-sm text-[#52565C]">
-                Elige una variante para superponerla: los anillos cubren toda la ventana
-                sobre fondo blanco, tal cual quedan en la carga de una página y en el 404.
+                Elige una variante para superponerla: la carga muestra el logo con las
+                partículas quantum, y el 404 conserva los anillos; ambas cubren toda la
+                ventana sobre fondo blanco, tal cual se ven en la app real.
                 Haz clic en cualquier parte del overlay para cerrarlo.
             </p>
 
