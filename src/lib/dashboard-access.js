@@ -72,6 +72,8 @@ const routeMatchersByRole = {
   "operador-clinico": [
     /^\/dashboard$/,
     /^\/dashboard\/no-access$/,
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/bloqueosAgenda$/,
     /^\/dashboard\/listaPacientes$/,
     /^\/dashboard\/GestionPaciente$/,
     /^\/dashboard\/FichaClinica$/,
@@ -83,6 +85,8 @@ const routeMatchersByRole = {
   "operador-medico": [
     /^\/dashboard$/,
     /^\/dashboard\/no-access$/,
+    /^\/dashboard\/calendario$/,
+    /^\/dashboard\/bloqueosAgenda$/,
     /^\/dashboard\/listaPacientes$/,
     /^\/dashboard\/GestionPaciente$/,
     /^\/dashboard\/FichaClinica$/,
@@ -535,28 +539,29 @@ const DASHBOARD_ROLE_DETAILS = {
     ],
   },
   "operador-clinico": {
-    label: "Profesional de Salud - Sin Agenda",
-    description: "Gestiona pacientes y fichas clínicas con una vista económica restringida.",
-    recommendedFor: "Personal clínico que registra atenciones sin administrar agenda ni valores.",
+    label: "Profesional de Salud",
+    description: "Gestiona agenda, pacientes y fichas clínicas con una vista económica restringida.",
+    recommendedFor: "Personal clínico que registra atenciones y gestiona agenda sin visualizar valores.",
     access: [
       "Consultar el panel de reservas y el estado de las citas.",
+      "Gestionar calendario y bloqueos de agenda.",
       "Ver pacientes y registrar nuevos pacientes.",
       "Crear, revisar y editar fichas clínicas.",
       "Consultar y administrar documentos adjuntos del paciente.",
     ],
     restrictions: [
       "No visualiza el valor o monto de las reservas.",
-      "No administra calendario, bloqueos ni detalle de agenda.",
       "No emite recetas, exámenes ni receta de lentes.",
       "No accede a odontograma, presupuestos, configuración ni contenido web.",
     ],
   },
   "operador-medico": {
-    label: "Profesional Médico (Receta + Exámenes) - Sin Agenda",
-    description: "Gestiona pacientes, fichas y documentos médicos, sin funciones odontológicas.",
-    recommendedFor: "Médicos que atienden pacientes y emiten documentación clínica.",
+    label: "Profesional Médico (Receta + Exámenes)",
+    description: "Gestiona agenda, pacientes, fichas y documentos médicos, sin funciones odontológicas.",
+    recommendedFor: "Médicos que atienden pacientes, gestionan agenda y emiten documentación clínica.",
     access: [
       "Consultar el panel de reservas.",
+      "Gestionar calendario y bloqueos de agenda.",
       "Ver y registrar pacientes.",
       "Crear, revisar y editar fichas clínicas y archivos adjuntos.",
       "Emitir recetas médicas, recetas de lentes y solicitudes de exámenes.",
@@ -564,12 +569,11 @@ const DASHBOARD_ROLE_DETAILS = {
     ],
     restrictions: [
       "No accede a odontograma.",
-      "No administra calendario ni bloqueos de agenda.",
       "No gestiona presupuestos, tratamientos, configuración ni contenido web.",
     ],
   },
   "operador-odontologico": {
-    label: "Operador Odontologico",
+    label: "Odontólogo - Dentistas",
     description: "Gestiona la atención odontológica completa, incluidos odontograma y presupuestos.",
     recommendedFor: "Odontólogos que atienden pacientes y preparan planes de tratamiento.",
     access: [
