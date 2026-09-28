@@ -14,6 +14,7 @@ import NotificationProvider from "@/components/NotificationProvider";
 import DashboardPageTransition from "@/components/DashboardPageTransition";
 import CortexAssistant from "@/Componentes/CortexAssistant";
 import { TourProvider } from "@/ContextosGlobales/TourContext";
+import SecretariaRouteGuard from "./SecretariaRouteGuard";
 
 export const metadata = {
     title: "Dashboard — Agenda Clínica",
@@ -28,8 +29,9 @@ export default function DashboardLayout({ children }) {
             {/* Telemetria del Health Score + registro de acceso para proteccion
                 de datos. No renderiza nada. Ver RegistroAcceso.jsx. */}
             <RegistroAcceso />
-            <TourProvider>
-                <div className="h-screen w-full overflow-hidden bg-[#FAFAFB] font-system-apple">
+            <SecretariaRouteGuard>
+                <TourProvider>
+                    <div className="h-screen w-full overflow-hidden bg-[#FAFAFB] font-system-apple">
                     <div className="flex h-full w-full">
 
                         {/* ═══════════════ SIDEBAR PREMIUM ═══════════════ */}
@@ -65,13 +67,14 @@ export default function DashboardLayout({ children }) {
                         <CortexAssistant />
 
                     </div>
-                </div>
+                    </div>
 
-                {/* Dentro de TourProvider a propósito: el banner de permisos
-                    necesita saber si el tour está corriendo para no aparecer
-                    sepultado bajo el overlay del tutorial (z-50 vs z-10000). */}
-                <NotificationProvider />
-            </TourProvider>
+                    {/* Dentro de TourProvider a propósito: el banner de permisos
+                        necesita saber si el tour está corriendo para no aparecer
+                        sepultado bajo el overlay del tutorial (z-50 vs z-10000). */}
+                    <NotificationProvider />
+                </TourProvider>
+            </SecretariaRouteGuard>
         </ClerkProvider>
     );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useSignIn } from "@clerk/nextjs";
+import { useAuth, useClerk, useSignIn } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import NeuralBg from "@/components/NeuralBg";
 import { PantallaCarga } from "@/components/ui/pantalla-anillos";
@@ -21,7 +21,9 @@ const fadeUp = {
 export default function Page() {
   const router = useRouter();
   const { isLoaded: isAuthLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
   const { isLoaded, signIn, setActive } = useSignIn();
+  const accesoNoAutorizado = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("unauthorized") === "1";
 
   const [username,   setUsername]   = useState("");
   const [password,   setPassword]   = useState("");
@@ -30,8 +32,15 @@ export default function Page() {
   const [error,      setError]      = useState("");
 
   useEffect(() => {
-    if (isAuthLoaded && isSignedIn) router.replace("/dashboard");
-  }, [isAuthLoaded, isSignedIn, router]);
+    if (!isAuthLoaded || !isSignedIn) return;
+
+    if (accesoNoAutorizado) {
+      void signOut({ redirectUrl: "/sign-in" });
+      return;
+    }
+
+    router.replace("/dashboard");
+  }, [accesoNoAutorizado, isAuthLoaded, isSignedIn, router, signOut]);
 
   if (!isLoaded || !isAuthLoaded || isSignedIn) {
     return <PantallaCarga />;
