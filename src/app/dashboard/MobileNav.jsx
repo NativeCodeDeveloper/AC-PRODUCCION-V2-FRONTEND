@@ -118,16 +118,14 @@ export default function MobileNav() {
       <div className="border-b border-slate-200 bg-white/95 backdrop-blur-xl">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#6E56CF] bg-[#EDE9FE]">
-              {avatar ? (
-                <img src={avatar} alt={name} className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-sm font-bold text-[#6E56CF]">{name.charAt(0)}</span>
-              )}
+            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200 shadow-sm">
+              {/* Logo de la app en el header (mock móvil); el avatar del usuario
+                  sigue visible al desplegar el menú. */}
+              <img src="/logo-mark-purple.png" alt="AgendaClinica" className="h-full w-full object-cover" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-semibold leading-tight text-slate-900">{name}</p>
-              <p className="text-[10px] font-medium text-slate-400">Panel clínico</p>
+              <p className="truncate text-[14px] font-extrabold uppercase leading-tight tracking-wide text-slate-900">{name}</p>
+              <p className="text-[12px] font-medium text-slate-400">Panel clínico</p>
             </div>
           </div>
 
@@ -140,10 +138,10 @@ export default function MobileNav() {
             )}
             <button
               onClick={() => setOpen((prev) => !prev)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
               aria-label={open ? "Cerrar menu" : "Abrir menu"}
             >
-              {open ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
