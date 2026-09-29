@@ -4,6 +4,14 @@ import { fetchConCarga as fetch } from "@/lib/fetchConCarga";
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import {
+    hoyCivil,
+    claveMesCivil,
+    desplazarMesCivil,
+    rangoMesCivil,
+    claveFechaCivil,
+    dentroDelRangoCivil,
+} from "@/lib/fechas";
 import { toast } from "react-hot-toast";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
@@ -168,16 +176,20 @@ export default function Finanzas() {
         cargarReservas();
     }, [API]);
 
+    // El periodo se expresa como fechas civiles "AAAA-MM-DD", no como instantes.
+    // Con dayjs() el mes salia del reloj del equipo y las fechas del backend
+    // ("2026-10-01T00:00:00.000Z") se corrian un dia hacia atras en Chile, asi
+    // que una cita del 1 de octubre se contaba en septiembre.
     const rangoPeriodo = useMemo(() => {
-        const hoy = dayjs();
+        const mesDeHoy = claveMesCivil(hoyCivil());
+
         if (periodo === "anterior") {
-            const mesAnterior = hoy.subtract(1, "month");
-            return { desde: mesAnterior.startOf("month"), hasta: mesAnterior.endOf("month") };
+            return rangoMesCivil(desplazarMesCivil(mesDeHoy, -1));
         }
         if (periodo === "personalizado" && fechaDesdeCustom && fechaHastaCustom) {
-            return { desde: dayjs(fechaDesdeCustom).startOf("day"), hasta: dayjs(fechaHastaCustom).endOf("day") };
+            return { desde: claveFechaCivil(fechaDesdeCustom), hasta: claveFechaCivil(fechaHastaCustom) };
         }
-        return { desde: hoy.startOf("month"), hasta: hoy.endOf("month") };
+        return rangoMesCivil(mesDeHoy);
     }, [periodo, fechaDesdeCustom, fechaHastaCustom]);
 
     const reservasValidas = useMemo(
@@ -186,11 +198,9 @@ export default function Finanzas() {
     );
 
     const reservasDelPeriodo = useMemo(() => {
-        return reservasValidas.filter((r) => {
-            const fecha = dayjs(r?.fechaInicio);
-            if (!fecha.isValid()) return false;
-            return !fecha.isBefore(rangoPeriodo.desde) && !fecha.isAfter(rangoPeriodo.hasta);
-        });
+        return reservasValidas.filter((r) =>
+            dentroDelRangoCivil(r?.fechaInicio, rangoPeriodo.desde, rangoPeriodo.hasta)
+        );
     }, [reservasValidas, rangoPeriodo]);
 
     const resumen = useMemo(() => {
@@ -277,26 +287,22 @@ export default function Finanzas() {
     // Siempre se calculan 12 meses; el propio ProgressMetricCard recorta a 6/12
     // según el período que elija el usuario en su selector interno.
     const evolucionPuntos = useMemo(() => {
-        const hoy = dayjs();
+        const mesDeHoy = claveMesCivil(hoyCivil());
         const meses = [];
         for (let i = 11; i >= 0; i--) {
-            const mes = hoy.subtract(i, "month");
-            meses.push({
-                label: mes.format("MMM YYYY"),
-                inicio: mes.startOf("month"),
-                fin: mes.endOf("month"),
-                value: 0,
-            });
+            const clave = desplazarMesCivil(mesDeHoy, -i);
+            // dayjs solo formatea la etiqueta. Se le pasa "AAAA-MM-01", que
+            // interpreta como dia local, nunca la fecha cruda del backend.
+            meses.push({ clave, label: dayjs(`${clave}-01`).format("MMM YYYY"), value: 0 });
         }
+
+        const porMes = new Map(meses.map((m) => [m.clave, m]));
 
         for (const r of reservasValidas) {
             const estado = normalizarEstado(r?.estadoReserva);
             if (!ESTADOS_INGRESO_CONFIRMADO.has(estado)) continue;
 
-            const fecha = dayjs(r?.fechaInicio);
-            if (!fecha.isValid()) continue;
-
-            const bucket = meses.find((m) => !fecha.isBefore(m.inicio) && !fecha.isAfter(m.fin));
+            const bucket = porMes.get(claveMesCivil(r?.fechaInicio));
             if (bucket) bucket.value += Number(r?.monto_reserva) || 0;
         }
 
@@ -415,8 +421,8 @@ export default function Finanzas() {
     const periodoLabelTexto =
         periodo === "personalizado"
             ? "Rango personalizado"
-            : rangoPeriodo.desde.format("MMMM YYYY").replace(/^./, (c) => c.toUpperCase());
-    const rangoPeriodoTexto = `${rangoPeriodo.desde.format("DD/MM/YYYY")} — ${rangoPeriodo.hasta.format("DD/MM/YYYY")}`;
+            : dayjs(rangoPeriodo.desde).format("MMMM YYYY").replace(/^./, (c) => c.toUpperCase());
+    const rangoPeriodoTexto = `${dayjs(rangoPeriodo.desde).format("DD/MM/YYYY")} — ${dayjs(rangoPeriodo.hasta).format("DD/MM/YYYY")}`;
 
     function descargarInformeFinancieroPDF() {
         if (porProfesional.length === 0) {

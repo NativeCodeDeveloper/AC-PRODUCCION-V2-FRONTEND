@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "fechas": "node scripts/revisar-fechas.mjs"
   },
   "dependencies": {
     "@bolttech/atoms-testimonial-card": "^0.21.0",

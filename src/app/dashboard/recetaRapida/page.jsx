@@ -108,6 +108,8 @@ export default function RecetaRapida() {
         if (!nombreProfesional.trim()) return "Debe seleccionar el profesional.";
         if (!diagnostico.trim()) return "Debe ingresar el diagnóstico.";
 
+        // fecha-ok: solo se comparan entre si. Ambas vienen de un <input type="date">
+        // con el mismo formato, asi que el desfase se cancela.
         const emision = new Date(fechaEmision);
         const caducidad = new Date(fechaCaducidad);
 

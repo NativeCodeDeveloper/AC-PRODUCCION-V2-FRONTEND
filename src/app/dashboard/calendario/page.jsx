@@ -27,6 +27,7 @@ import TutorialGuiadoCalendario from "@/Componentes/TutorialGuiadoCalendario";
 import { useTour } from "@/ContextosGlobales/TourContext";
 import { marcarReservaDeTour } from "@/lib/tourReserva";
 import { canAccessFichasClinicas, getDashboardRoleFromUser } from "@/lib/dashboard-access";
+import { hoyCivil } from "@/lib/fechas";
 
 dayjs.locale("es");
 const localizer = dayjsLocalizer(dayjs);
@@ -1276,11 +1277,14 @@ function CalendarioContent() {
                 return false;
             }
             const correoNormalizado = normalizarCorreoOpcional(email);
-            const ahora = new Date();
             const inicio = new Date(`${fechaInicio}T${horaInicio}`);
             const final = new Date(`${fechaFinalizacion}T${horaFinalizacion}`);
-            // Compara solo el día, no el minuto exacto — permite completar el form sin error si el slot es hoy
-            const hoyStr = ahora.toISOString().slice(0, 10);
+            // Compara solo el día, no el minuto exacto — permite completar el form sin error si el slot es hoy.
+            // hoyCivil() entrega el día en la zona de la clínica. Antes se usaba
+            // toISOString(), que da el día en UTC: desde las 21:00 de Chile eso ya
+            // es el día siguiente, y el formulario rechazaba agendar para el día
+            // en curso con un "fecha pasada" que no correspondía.
+            const hoyStr = hoyCivil();
             if (fechaInicio < hoyStr) {
                 toast.error("No es posible agendar en fechas pasadas.");
                 return false;
@@ -1382,6 +1386,7 @@ function CalendarioContent() {
 
         let exitosos = 0;
         let conflictos = 0;
+        let fechasPasadas = 0;
         let errores = 0;
 
         // Descarta duplicados y el día ya agendado por la reserva principal.
@@ -1395,10 +1400,15 @@ function CalendarioContent() {
             })
             .sort();
 
-        const hoyStr = new Date().toISOString().slice(0, 10);
+        // Si tras descartar repetidas y el día de la reserva principal no queda
+        // ninguna fecha, no hay nada que agendar — y tampoco nada que informar.
+        if (fechasOrdenadas.length === 0) return;
+
+        // Mismo criterio que la reserva simple: el día de la clínica, no el de UTC.
+        const hoyStr = hoyCivil();
 
         for (const fecha of fechasOrdenadas) {
-            if (fecha < hoyStr) { errores++; continue; }
+            if (fecha < hoyStr) { fechasPasadas++; continue; }
 
             const inicio = new Date(`${fecha}T${horaInicioStr}`);
             const final = new Date(`${fecha}T${horaFinalizacionStr}`);
@@ -1420,12 +1430,18 @@ function CalendarioContent() {
 
         if (exitosos > 0) await refrescarCalendario();
 
-        if (exitosos > 0 && conflictos === 0 && errores === 0) {
+        const detalle = [];
+        if (conflictos > 0) detalle.push(`${conflictos} con la hora ocupada o bloqueada`);
+        if (fechasPasadas > 0) detalle.push(`${fechasPasadas} en fechas ya pasadas`);
+        if (errores > 0) detalle.push(`${errores} por un error al guardar`);
+        const noAgendadas = conflictos + fechasPasadas + errores;
+
+        if (exitosos > 0 && noAgendadas === 0) {
             toast.success(`Se agendaron ${exitosos} fecha(s) adicionales correctamente.`);
         } else if (exitosos > 0) {
-            toast(`${exitosos} fecha(s) adicionales agendadas. ${conflictos + errores} no se pudieron agendar (hora ocupada, bloqueada o fecha pasada).`);
+            toast(`${exitosos} fecha(s) adicionales agendadas. ${noAgendadas} no se pudo agendar: ${detalle.join(", ")}.`);
         } else {
-            toast.error(`No se pudo agendar ninguna fecha adicional (${conflictos} ocupada(s)/bloqueada(s), ${errores} con error).`);
+            toast.error(`No se pudo agendar ninguna fecha adicional: ${detalle.join(", ")}.`);
         }
     }
 

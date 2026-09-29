@@ -57,6 +57,7 @@ function formatearFecha(fecha) {
   return new Intl.DateTimeFormat("es-CL", {
     dateStyle: "medium",
     timeStyle: "short",
+  // fecha-ok: createdAt de Clerk, instante real con hora.
   }).format(new Date(fecha));
 }
 

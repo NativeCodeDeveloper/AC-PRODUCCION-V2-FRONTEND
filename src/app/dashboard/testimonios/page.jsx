@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTodasLasResenas, eliminarResena } from "@/hooks/useResenas";
+import { formatearFechaAuto } from "@/lib/fechas";
 
 function nombreDe(r) {
   const nombrePaciente = [r.nombrePaciente, r.apellidoPaciente].filter(Boolean).join(" ").trim();
@@ -165,7 +166,7 @@ export default function Testimonios() {
                       {r.comentario}
                     </TableCell>
                     <TableCell className="py-4 text-[12px] text-slate-500 hidden sm:table-cell">
-                      {r.created_at ? new Date(r.created_at).toLocaleDateString("es-CL") : "-"}
+                      {formatearFechaAuto(r.created_at)}
                     </TableCell>
                     <TableCell className="py-4 text-center">
                       <AlertDialog>

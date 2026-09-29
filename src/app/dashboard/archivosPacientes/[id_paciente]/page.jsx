@@ -5,13 +5,12 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import ToasterClient from "@/Componentes/ToasterClient";
 import { formatRut } from "@/lib/designTokens";
+import { formatearFechaAuto } from "@/lib/fechas";
 
-function formatearFechaCorta(fecha) {
-    if (!fecha) return "-";
-    const d = new Date(fecha);
-    if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" });
-}
+// formatearFechaAuto y no `new Date`: si fecha_subida fuera una columna DATE,
+// `new Date` la corre un dia en Chile. Si es un instante, lo muestra en la
+// zona de la clinica en vez de en la del equipo.
+const formatearFechaCorta = (fecha) => formatearFechaAuto(fecha);
 
 function getBadgeColor(tipo) {
     const map = {

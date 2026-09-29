@@ -33,6 +33,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { hoyCivil } from "@/lib/fechas";
 
 const STORAGE_KEYS = {
     profesional: "dashboard_reservas_profesional",
@@ -160,6 +161,8 @@ export default function AgendaCitas() {
             return `${day}-${month}-${year}`;
         }
 
+        // fecha-ok: solo se llega aca si el valor NO tiene forma ISO; las que si
+        // la tienen se leen del texto en el bloque de arriba.
         const date = new Date(fecha);
         if (Number.isNaN(date.getTime())) return "";
 
@@ -197,6 +200,7 @@ export default function AgendaCitas() {
             };
         }
 
+        // fecha-ok: mismo caso, respaldo para valores sin forma ISO.
         const fechaLocal = new Date(fecha);
         if (Number.isNaN(fechaLocal.getTime())) return null;
 
@@ -474,6 +478,8 @@ export default function AgendaCitas() {
                 return toast.error("Debe seleccionar un rango de fechas para filtrar")
             }
 
+            // fecha-ok: solo se comparan entre si. Las dos cargan el mismo
+            // desfase, asi que cual es mayor no cambia.
             const start = new Date(fechaInicio);
             const end = new Date(fechaFinalizacion);
 
@@ -727,7 +733,7 @@ export default function AgendaCitas() {
         const worksheet = XLSX.utils.json_to_sheet(datosExportar);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Reservaciones");
-        XLSX.writeFile(workbook, `reservaciones_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        XLSX.writeFile(workbook, `reservaciones_${hoyCivil()}.xlsx`);
         toast.success("Archivo Excel exportado correctamente.");
     }
 

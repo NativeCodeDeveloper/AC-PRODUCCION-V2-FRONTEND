@@ -13,6 +13,7 @@ const API = () => process.env.NEXT_PUBLIC_API_URL;
 // poll (cada 30s) para que una notificación desaparezca justo al pasar su hora.
 function noHaExpirado(n) {
     if (!n.fecha_evento) return true;
+    // fecha-ok: instante del evento, comparado contra el momento actual.
     return new Date(n.fecha_evento).getTime() >= Date.now();
 }
 

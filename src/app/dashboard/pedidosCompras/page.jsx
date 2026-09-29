@@ -7,6 +7,7 @@ import {ShadcnInput} from "@/Componentes/shadcnInput";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {InfoButton} from "@/Componentes/InfoButton";
+import { formatearFechaAuto } from "@/lib/fechas";
 
 export default function PedidosCompra() {
     const [pedidos, setPedidos] = useState([]);
@@ -20,13 +21,9 @@ export default function PedidosCompra() {
         router.push(`/dashboard/pedidosDetalle?id=${id}`);
     }
 
-    function formatearFecha(fecha) {
-        const date = new Date(fecha);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1);
-        const day = String(date.getDate());
-        return `${year}-${month}-${day}`;
-    }
+    // Antes: `new Date(fecha)` corria el dia, y ademas armaba "2026-9-5" sin
+    // rellenar con ceros, asi que la columna no quedaba alineada ni ordenable.
+    const formatearFecha = (fecha) => formatearFechaAuto(fecha);
 
     async function filtrarSimilitudNombre(nombre_comprador) {
         try {

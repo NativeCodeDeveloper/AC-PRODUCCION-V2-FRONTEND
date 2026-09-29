@@ -425,6 +425,7 @@ export default function CalendarioMensualHoras() {
     /** Selección de un día del calendario */
     function seleccionarFecha(fecha) {
         const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        // fecha-ok: `fecha` ya es un Date del calendario, aqui solo se clona.
         const dia = new Date(fecha); dia.setHours(0, 0, 0, 0);
         if (dia < hoy) { toast.error("No puedes agendar en fechas pasadas"); return; }
         if (fecha.getDay() === 0) {
@@ -449,6 +450,7 @@ export default function CalendarioMensualHoras() {
     function seleccionarHora(hora) {
         // Bloquear horas pasadas si el día seleccionado es hoy
         if (fechaSeleccionada) {
+            // fecha-ok: `fechaSeleccionada` ya es un Date del calendario, aqui solo se clona.
             const hoy = new Date(); const dia = new Date(fechaSeleccionada);
             hoy.setHours(0,0,0,0); dia.setHours(0,0,0,0);
             if (dia.getTime() === hoy.getTime()) {
@@ -753,6 +755,7 @@ export default function CalendarioMensualHoras() {
                                             if (pagoEnCursoSlots.has(s.start)) return false; // Pago en curso
                                             // Ocultar horas pasadas si es hoy
                                             if (fechaSeleccionada) {
+                                                // fecha-ok: `fechaSeleccionada` ya es un Date del calendario, aqui solo se clona.
                                                 const hoy = new Date(); const dia = new Date(fechaSeleccionada);
                                                 hoy.setHours(0,0,0,0); dia.setHours(0,0,0,0);
                                                 if (dia.getTime() === hoy.getTime()) {

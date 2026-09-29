@@ -14,6 +14,7 @@ function getNotifStyle(tipo) {
 }
 
 function formatRelativo(fecha) {
+    // fecha-ok: instante del evento; se usa para decir "hace X minutos".
     const diff = Date.now() - new Date(fecha).getTime();
     const min  = Math.floor(diff / 60000);
     if (min < 1)  return 'ahora';

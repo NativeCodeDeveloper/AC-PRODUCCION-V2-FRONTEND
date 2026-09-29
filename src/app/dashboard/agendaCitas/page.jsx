@@ -123,6 +123,7 @@ export default function AgendaCitas() {
                 return toast.error("Debe seleccionar un rango de fechas para filtrar")
             }
 
+            // fecha-ok: solo se comparan entre si para validar el rango.
             const start = new Date(fechaInicio);
             const end = new Date(fechaFinalizacion);
 

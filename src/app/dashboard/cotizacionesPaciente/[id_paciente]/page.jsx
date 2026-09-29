@@ -36,19 +36,11 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import TutorialGuiadoCotizaciones from "@/Componentes/TutorialGuiadoCotizaciones";
+import { edadCivil } from "@/lib/fechas";
 
-function calcularEdadPaciente(fechaNacimiento) {
-    if (!fechaNacimiento) return "-";
-    const nacimiento = new Date(fechaNacimiento);
-    if (Number.isNaN(nacimiento.getTime()) || nacimiento.getFullYear() <= 1901) return "-";
-    const hoy = new Date();
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-        edad--;
-    }
-    return edad;
-}
+// La edad vive en lib/fechas.js: `new Date(fechaNacimiento)` corria el dia de
+// nacimiento y en la vispera del cumpleanios devolvia un anio de mas.
+const calcularEdadPaciente = (fechaNacimiento) => edadCivil(fechaNacimiento);
 
 
 function estadosLetra_interpretacion(estado_backend){
@@ -77,6 +69,7 @@ function formatearMonto(valor) {
 function formatearFechaHora(fechaISO) {
     if (!fechaISO) return "";
 
+    // fecha-ok: es un instante con hora, no un dia del calendario.
     return new Date(fechaISO).toLocaleString("es-CL", {
         day: "2-digit",
         month: "2-digit",

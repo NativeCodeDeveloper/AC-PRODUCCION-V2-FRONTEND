@@ -6,7 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { NOMBRES_PREVISION, previsionDesdeId, previsionIdDesdeNombre } from "@/lib/previsiones";
 import FichaClinicaModal from "@/Componentes/FichaClinicaModal";
 import EditarFichaModal from "@/Componentes/EditarFichaModal";
-import { claveFechaCivil, formatearFechaCivil, partesFechaCivil } from "@/lib/fechas";
+import { claveFechaCivil, edadCivil, formatearFechaCivil, partesFechaCivil } from "@/lib/fechas";
 import {toast} from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -316,6 +316,7 @@ export default function Paciente() {
 
             const atendidas = data
                 .filter(r => ["asiste", "finalizado"].includes(String(r.estadoReserva || "").toLowerCase()))
+                // fecha-ok: solo ordena; el desfase es igual en todas y no altera el orden.
                 .sort((a, b) => new Date(b.fechaInicio) - new Date(a.fechaInicio));
 
             setUltimaAtencion(atendidas[0]?.fechaInicio || null);
@@ -658,19 +659,8 @@ export default function Paciente() {
     }, [detallePaciente]);
 
     function calcularEdad(fechaNacimiento) {
-        if (!fechaNacimiento || esFechaPlaceholder(fechaNacimiento)) return '-';
-        const hoy = new Date();
-        const partes = String(fechaNacimiento).split('T')[0].split('-');
-        const anioNac = parseInt(partes[0], 10);
-        const mesNac = parseInt(partes[1], 10);
-        const diaNac = parseInt(partes[2], 10);
-        if (isNaN(anioNac) || isNaN(mesNac) || isNaN(diaNac)) return '-';
-        let edad = hoy.getFullYear() - anioNac;
-        const mesActual = hoy.getMonth() + 1;
-        if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < diaNac)) {
-            edad--;
-        }
-        return edad;
+        if (esFechaPlaceholder(fechaNacimiento)) return '-';
+        return edadCivil(fechaNacimiento, '-');
     }
 
 
