@@ -148,19 +148,33 @@ export default function BotonAyuda({
                 </svg>
             </button>
 
-            {abierto && (
+            {/* El menu se OCULTA, no se desmonta.
+                Las dos opciones son componentes con estado propio: el visor de
+                video guarda en su estado si la ventana esta abierta, y el
+                tutorial guiado destruye su instancia de driver.js al
+                desmontarse. Con `{abierto && ...}` pasaba esto: al pulsar una
+                opcion su handler corria, el clic burbujeaba hasta este
+                contenedor, `cerrar()` ponia `abierto` en false y React
+                desmontaba las dos — borrando el estado que el visor acababa de
+                poner y destruyendo el tour recien arrancado. Resultado: las dos
+                opciones parecian no hacer nada.
+
+                `hidden` (display:none) tambien las saca del orden de tabulacion,
+                y ni la ventana de video ni el overlay de driver.js se ven
+                afectados por el ancestro oculto: los dos se dibujan en
+                document.body por portal. */}
+            <div
+                id={menuId}
+                role="menu"
+                hidden={!abierto}
+                onClick={cerrar}
                 // `right-0` y no `left-0`: este boton vive en el extremo derecho
                 // de la cabecera en las cinco rutas, y abriendo hacia la
                 // izquierda el menu se salia de la pantalla en movil.
-                <div
-                    id={menuId}
-                    role="menu"
-                    onClick={cerrar}
-                    className="absolute right-0 z-50 mt-2 w-[232px] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-900/5"
-                >
-                    {opciones}
-                </div>
-            )}
+                className="absolute right-0 z-50 mt-2 w-[232px] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-900/5"
+            >
+                {opciones}
+            </div>
         </div>
     );
 }
