@@ -3,9 +3,13 @@
 // ── Quantum Cloud Loader ─────────────────────────────────────────────────────
 // Partículas en órbitas horizontales suaves (sin gradientes ni cambios de
 // dirección bruscos; curvas largas y velocidades distintas que interactúan
-// entre sí). Esferas en distintos tonos de morado (la marca), pensadas para
-// fondo blanco. Va bajo el logo en la pantalla de carga
+// entre sí). Va bajo el logo en la pantalla de carga
 // (src/components/ui/pantalla-anillos.jsx).
+//
+// Los cuatro tonos son una escalera derivada del morado de marca (#6E56CF):
+// una esfera lo lleva exacto y las otras tres se separan hacia claro y oscuro.
+// Antes el tono oscuro era #5B21B6, que tira a indigo y rompia la familia.
+// El contenedor NO pinta fondo: se dibuja sobre lo que haya detras.
 
 export default function CloudLoader() {
   return (
@@ -14,22 +18,22 @@ export default function CloudLoader() {
 
         {/* MORADO CLARO — Partícula rápida interior */}
         <div className="absolute z-30 h-5 w-5 animate-quantum-violeta">
-          <div className="h-full w-full rounded-full bg-[#A78BFA] shadow-[0_0_12px_rgba(167,139,250,0.75),0_0_24px_rgba(167,139,250,0.3)]" />
+          <div className="h-full w-full rounded-full bg-[#9E8CE8] shadow-[0_0_12px_rgba(158,140,232,0.75),0_0_24px_rgba(158,140,232,0.3)]" />
         </div>
 
         {/* MORADO OSCURO — Partícula exterior grande */}
         <div className="absolute z-10 h-7 w-7 animate-quantum-morado-oscuro">
-          <div className="h-full w-full rounded-full bg-[#5B21B6] shadow-[0_0_16px_rgba(91,33,182,0.7),0_0_30px_rgba(91,33,182,0.25)]" />
+          <div className="h-full w-full rounded-full bg-[#4634A6] shadow-[0_0_16px_rgba(70,52,166,0.7),0_0_30px_rgba(70,52,166,0.25)]" />
         </div>
 
         {/* MORADO — Partícula central */}
         <div className="absolute z-40 h-6 w-6 animate-quantum-morado">
-          <div className="h-full w-full rounded-full bg-[#7C5CF0] shadow-[0_0_14px_rgba(124,92,240,0.75),0_0_26px_rgba(124,92,240,0.3)]" />
+          <div className="h-full w-full rounded-full bg-[#6E56CF] shadow-[0_0_14px_rgba(110,86,207,0.75),0_0_26px_rgba(110,86,207,0.3)]" />
         </div>
 
         {/* LAVANDA — Partícula orbital lenta */}
         <div className="absolute z-0 h-4 w-4 animate-quantum-lavanda">
-          <div className="h-full w-full rounded-full bg-[#C4B5FD] shadow-[0_0_12px_rgba(196,181,253,0.75),0_0_24px_rgba(196,181,253,0.3)]" />
+          <div className="h-full w-full rounded-full bg-[#CFC7F2] shadow-[0_0_12px_rgba(207,199,242,0.75),0_0_24px_rgba(207,199,242,0.3)]" />
         </div>
 
       </div>

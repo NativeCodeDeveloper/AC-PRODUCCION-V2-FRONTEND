@@ -10,7 +10,7 @@ const suscribirMontaje = () => () => {};
 const obtenerMontaje = () => true;
 const obtenerMontajeServidor = () => false;
 
-// ── Pantallas a pantalla completa sobre fondo blanco ────────────────────────
+// ── Pantallas a pantalla completa ───────────────────────────────────────────
 // La pantalla de carga (src/app/loading.jsx) muestra el logo con las
 // partículas quantum (quantum-cloud-loader.jsx); los anillos quedaron solo
 // para la de 404 (src/app/not-found.jsx). La vista de carga se comparte con
@@ -45,7 +45,12 @@ export function VistaPantallaCarga({ onClick }) {
       onClick={onClick}
       // z-[90]: sobre el orbe de Cortex (z-[80], se monta en el layout del
       // dashboard y si no quedaría flotando sobre la carga) y bajo el tour (z-10000).
-      className="fixed inset-0 z-[90] overflow-hidden bg-white"
+      // Sin fondo: antes era `bg-white`, una lamina opaca que aparecia y
+      // desaparecia de golpe sobre lo que hubiera detras. Ahora la carga se
+      // dibuja encima y entra con un fundido, asi el cambio no es abrupto.
+      // (El 404 si conserva su fondo: es una pantalla final, no un estado
+      // pasajero.)
+      className="fixed inset-0 z-[90] overflow-hidden animate-in fade-in duration-500"
       role="status"
       aria-live="polite"
       aria-label="Cargando Agenda Clínica"
@@ -53,12 +58,15 @@ export function VistaPantallaCarga({ onClick }) {
     >
       <div className="flex h-full flex-col items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* Marca de la plataforma en su morado. Reemplaza al logotipo de
+            texto (letrasLoading.png, 2170x725 y 380 KB): este es cuadrado,
+            pesa 12 KB y dice lo mismo en un tercio del espacio. */}
         <img
-          src="/fonts/letrasLoading.png"
+          src="/logo-mark-purple.png"
           alt="Agenda Clínica"
-          width={2170}
-          height={725}
-          className="block h-auto w-[min(56vw,280px)] object-contain"
+          width={552}
+          height={501}
+          className="block h-auto w-[min(30vw,128px)] object-contain"
         />
         {/* Partículas quantum bajo el logo */}
         <CloudLoader />
