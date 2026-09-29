@@ -29,8 +29,8 @@ import {
   X,
 } from "lucide-react";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
-
-const URL_SOPORTE = "https://wa.me/56932912943?text=Hola%20tengo%20una%20duda%20de%20soporte%20de%20AgendaClinica";
+import { useDatosSoporte } from "@/hooks/useDatosSoporte";
+import { construirUrlSoporte } from "@/lib/soporteWhatsapp";
 
 const ICONS = {
   home: Home,
@@ -58,6 +58,9 @@ export default function MobileNav() {
   const { user, isLoaded } = useUser();
   const role = getDashboardRoleFromUser(user);
   const sections = getVisibleDashboardSections(role);
+
+  const datosSoporte = useDatosSoporte();
+  const urlSoporte = construirUrlSoporte(datosSoporte);
   const name = user?.fullName || user?.firstName || "Usuario";
   const avatar = user?.imageUrl;
 
@@ -252,7 +255,7 @@ export default function MobileNav() {
 
               <div className="rounded-2xl border border-slate-200 bg-white p-2">
                 <Link
-                  href={URL_SOPORTE}
+                  href={urlSoporte}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}

@@ -12,8 +12,8 @@ import UserMenu from "./UserMenu";
 import NotificationBell from "@/components/NotificationBell";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
 import { useTour } from "@/ContextosGlobales/TourContext";
-
-const URL_SOPORTE = "https://wa.me/56932912943?text=Hola%20tengo%20una%20duda%20de%20soporte%20de%20AgendaClinica";
+import { useDatosSoporte } from "@/hooks/useDatosSoporte";
+import { construirUrlSoporte } from "@/lib/soporteWhatsapp";
 
 const ICONS = {
   home: (
@@ -416,7 +416,7 @@ function IconoRail({ section, activo, abierto, onAbrir, onCerrar, onAlternar, on
   );
 }
 
-function NavRail({ sections, pathname, modo, onCambiarModo }) {
+function NavRail({ sections, pathname, modo, onCambiarModo, urlSoporte }) {
   const [seccionAbierta, setSeccionAbierta] = useState(null);
   const temporizador = useRef(null);
 
@@ -456,7 +456,7 @@ function NavRail({ sections, pathname, modo, onCambiarModo }) {
       </nav>
       <div className="shrink-0 border-t border-slate-100 px-2 py-2">
         <Link
-          href={URL_SOPORTE}
+          href={urlSoporte}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Contacto Soporte"
@@ -509,6 +509,13 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
   const { user, isLoaded } = useUser();
   const role = getDashboardRoleFromUser(user);
   const sections = useMemo(() => getVisibleDashboardSections(role), [role]);
+
+  const datosSoporte = useDatosSoporte();
+  const urlSoporte = useMemo(() => construirUrlSoporte(datosSoporte), [datosSoporte]);
+  const urlSoporteSuspendido = useMemo(
+    () => construirUrlSoporte({ ...datosSoporte, motivo: "Cuenta suspendida" }),
+    [datosSoporte],
+  );
 
   const [openAccordions, setOpenAccordions] = useState(() => {
     const active = getActiveAccordion(pathname, sections);
@@ -581,7 +588,7 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
   // los acordeones (que se despliegan hacia abajo) no tienen equivalente en
   // 64px — ahi las opciones salen de lado, en un flyout.
   if (colapsado && role !== "cancelado") {
-    return <NavRail sections={sections} pathname={pathname} modo={modo} onCambiarModo={onCambiarModo} />;
+    return <NavRail sections={sections} pathname={pathname} modo={modo} onCambiarModo={onCambiarModo} urlSoporte={urlSoporte} />;
   }
 
   if (role === "cancelado") {
@@ -615,7 +622,7 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
           </div>
         </div>
         <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
-          <NavItem href={URL_SOPORTE} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
+          <NavItem href={urlSoporteSuspendido} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
         </div>
       </>
     );
@@ -658,7 +665,7 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
           })}
 
         <div className="mt-3 border-t border-slate-100 pt-2">
-          <NavItem href={URL_SOPORTE} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
+          <NavItem href={urlSoporte} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
         </div>
       </nav>
 
