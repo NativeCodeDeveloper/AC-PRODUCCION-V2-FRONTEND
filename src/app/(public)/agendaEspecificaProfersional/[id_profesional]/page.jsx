@@ -8,7 +8,7 @@ import {toast} from "react-hot-toast";
 import {useParams, useRouter} from "next/navigation";
 
 /* ─────────────────────────────────────────────
-   UTILIDADES PURAS (sin dependencias de React)
+   UTILIDADES PURAS (sin dependencias de React)rr add
 ───────────────────────────────────────────── */
 
 /** Convierte un Date a "YYYY-MM-DD" usando la zona horaria local */
