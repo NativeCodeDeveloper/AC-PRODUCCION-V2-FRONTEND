@@ -39,11 +39,24 @@ function useMenosMovimiento() {
     const [activo, setActivo] = useState(false);
 
     useEffect(() => {
-        const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+        if (!mq) return;
+
         const aplicar = () => setActivo(mq.matches);
         aplicar();
-        mq.addEventListener("change", aplicar);
-        return () => mq.removeEventListener("change", aplicar);
+
+        // `addEventListener` sobre un MediaQueryList llego a Safari en la 14.
+        // En iOS 13 y anteriores solo existe `addListener`, y llamar al
+        // primero ahi lanza un TypeError DENTRO del efecto, que tumba el
+        // sidebar entero. El sidebar se ve desde `md`, o sea tambien en iPad:
+        // justo donde es mas probable encontrar un Safari viejo.
+        if (mq.addEventListener) {
+            mq.addEventListener("change", aplicar);
+            return () => mq.removeEventListener("change", aplicar);
+        }
+
+        mq.addListener(aplicar);
+        return () => mq.removeListener(aplicar);
     }, []);
 
     return activo;

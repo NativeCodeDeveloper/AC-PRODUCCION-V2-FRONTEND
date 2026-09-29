@@ -265,6 +265,7 @@ function NavAccordion({ id, label, icon, children, openAccordions, onToggle, dat
 function CapaFlotante({ anclaRef, children, separacion = 8 }) {
   const [montado, setMontado] = useState(false);
   const [pos, setPos] = useState(null);
+  const capaRef = useRef(null);
 
   useEffect(() => setMontado(true), []);
 
@@ -272,8 +273,24 @@ function CapaFlotante({ anclaRef, children, separacion = 8 }) {
     const medir = () => {
       const r = anclaRef.current?.getBoundingClientRect();
       if (!r) return;
-      setPos({ left: r.right + separacion, top: r.top });
+
+      // El panel se ACOTA al alto de la ventana. Sin esto se dibujaba a la
+      // altura de su icono y punto: la ultima seccion ("Contenido web", 5
+      // items, ~207px) abierta en una pantalla baja se salia por abajo y sus
+      // ultimas opciones quedaban fuera de alcance. El margen deja un respiro
+      // contra los bordes.
+      const margen = 8;
+      const alto = capaRef.current?.offsetHeight ?? 0;
+      const techo = window.innerHeight - alto - margen;
+      const top = alto > 0 ? Math.max(margen, Math.min(r.top, techo)) : r.top;
+
+      setPos((previa) => (
+        previa && previa.left === r.right + separacion && previa.top === top
+          ? previa
+          : { left: r.right + separacion, top }
+      ));
     };
+
     medir();
     // Se remide en scroll y resize: el ancla se mueve con la lista.
     window.addEventListener("scroll", medir, true);
@@ -282,12 +299,23 @@ function CapaFlotante({ anclaRef, children, separacion = 8 }) {
       window.removeEventListener("scroll", medir, true);
       window.removeEventListener("resize", medir);
     };
-  }, [anclaRef, separacion]);
+  });
 
-  if (!montado || !pos) return null;
+  if (!montado) return null;
 
+  // Se dibuja siempre (oculto hasta tener posicion) para poder MEDIRLO: si se
+  // devolviera null sin `pos`, nunca habria altura que acotar.
   return createPortal(
-    <div style={{ position: "fixed", left: pos.left, top: pos.top, zIndex: 95 }}>
+    <div
+      ref={capaRef}
+      style={{
+        position: "fixed",
+        left: pos ? pos.left : -9999,
+        top: pos ? pos.top : 0,
+        zIndex: 95,
+        visibility: pos ? "visible" : "hidden",
+      }}
+    >
       {children}
     </div>,
     document.body,
