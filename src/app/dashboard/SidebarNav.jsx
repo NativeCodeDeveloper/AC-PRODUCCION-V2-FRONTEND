@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useUser } from "@clerk/nextjs";
-import { LifeBuoy } from "lucide-react";
+// Headset (auriculares con microfono) en vez del salvavidas: se lee como
+// "hablar con alguien", que es lo que hace el enlace, y no como emergencia.
+import { Headset } from "lucide-react";
 import UserMenu from "./UserMenu";
 import NotificationBell from "@/components/NotificationBell";
 import { getDashboardRoleFromUser, getVisibleDashboardSections } from "@/lib/dashboard-access";
@@ -462,7 +464,7 @@ function NavRail({ sections, pathname, modo, onCambiarModo }) {
           className="group relative flex h-11 w-full items-center justify-center"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-all duration-150 group-hover:bg-slate-100 group-hover:text-slate-700">
-            <LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />
+            <Headset className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
 
         </Link>
@@ -613,7 +615,7 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
           </div>
         </div>
         <div className="mx-4 shrink-0 border-t border-slate-100 py-2">
-          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
+          <NavItem href={URL_SOPORTE} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
         </div>
       </>
     );
@@ -656,7 +658,7 @@ export default function SidebarNav({ colapsado = false, modo = "fijado", onCambi
           })}
 
         <div className="mt-3 border-t border-slate-100 pt-2">
-          <NavItem href={URL_SOPORTE} icon={<LifeBuoy className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
+          <NavItem href={URL_SOPORTE} icon={<Headset className="h-3.5 w-3.5" aria-hidden="true" />} label="Contacto Soporte" />
         </div>
       </nav>
 

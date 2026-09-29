@@ -92,6 +92,9 @@ export default function SidebarShell() {
             return siguiente;
         });
         setHover(false);
+        // Tambien se suelta el foco: el boton que se acaba de pulsar se queda
+        // enfocado y, sin esto, mantendria el panel abierto (ver onFocusCapture).
+        setFoco(false);
     }, []);
 
     useEffect(() => () => window.clearTimeout(temporizador.current), []);
@@ -115,7 +118,27 @@ export default function SidebarShell() {
             }}
             onMouseEnter={() => esRail && programar(true, RETARDO_ABRIR)}
             onMouseLeave={() => esRail && programar(false, RETARDO_CERRAR)}
-            onFocusCapture={() => setFoco(true)}
+            onFocusCapture={(e) => {
+                // Solo el foco de TECLADO abre el panel.
+                //
+                // Con cualquier foco pasaba esto: al pulsar "anclar" con el
+                // raton, el modo cambiaba a rail pero el propio boton se
+                // quedaba enfocado, `foco` seguia en true y la tarjeta no se
+                // replegaba — parecia que el boton no hacia nada, y solo se
+                // cerraba al clicar fuera (que es cuando perdia el foco).
+                //
+                // Safari no lo sufre porque no da foco de teclado a un <button>
+                // al hacer clic; Chrome, Firefox, Edge y Opera si. De ahi que
+                // el fallo apareciera en todos menos en Safari.
+                //
+                // `:focus-visible` es exactamente "foco que merece verse", o
+                // sea teclado y no raton.
+                try {
+                    if (e.target.matches(":focus-visible")) setFoco(true);
+                } catch {
+                    // Navegador sin `:focus-visible`: mejor no abrir que romper.
+                }
+            }}
             onBlurCapture={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget)) setFoco(false);
             }}
