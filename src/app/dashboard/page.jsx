@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import {useUser} from "@clerk/nextjs";
 import {Calendar28} from "@/Componentes/shadcnCalendarSelector";
-import {InfoButton} from "@/Componentes/InfoButton";
 import {canAccessFichasClinicas, getDashboardRoleFromUser} from "@/lib/dashboard-access";
 import {getStateTokens} from "@/lib/designTokens";
 import {useTour} from "@/ContextosGlobales/TourContext";
@@ -25,7 +24,7 @@ import {
 
 import * as React from "react"
 import * as XLSX from "xlsx";
-import BotonVideoTutorial from "@/Componentes/VideoTutorial";
+import BotonAyuda from "@/Componentes/BotonAyuda";
 import {
     Select,
     SelectContent,
@@ -936,12 +935,6 @@ export default function AgendaCitas() {
                             </svg>
                             <span>Agendar Paciente</span>
                         </button>
-                        <BotonVideoTutorial
-                            videoId="ga44dJoW62c"
-                            titulo="Panel de reservas"
-                            ariaLabel="Abrir video tutorial del panel de citas"
-                            className="flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
-                        />
                         {canSeeFichasClinicas && (
                             <button
                                 onClick={() => router.push("/dashboard/FichaClinica")}
@@ -953,14 +946,22 @@ export default function AgendaCitas() {
                                 <span>Fichas Clínicas</span>
                             </button>
                         )}
-                        <InfoButton
-                            informacion={'Panel principal de la agenda: aquí ves y gestionas todas las citas registradas en el sistema.'}
-                            pasos={[
-                                'Abre el panel de filtros para buscar por paciente, profesional, fecha o estado.',
-                                'Revisa las tarjetas superiores (Total, Confirmadas, Asiste, Anuladas, Finalizadas) para un resumen rápido.',
-                                'Usa el menú de acciones de cada fila para cambiar el estado de asistencia de una cita.',
-                                'Presiona "Fichas Clínicas" para ir directo al historial médico del paciente.',
-                            ]}
+                        <BotonAyuda
+                            video={{
+                                videoId: "ga44dJoW62c",
+                                titulo: "Panel de reservas",
+                                ariaLabel: "Abrir video tutorial del panel de citas",
+                            }}
+                            info={{
+                                informacion: 'Panel principal de la agenda: aquí ves y gestionas todas las citas registradas en el sistema.',
+                                pasos: [
+                                    'Abre el panel de filtros para buscar por paciente, profesional, fecha o estado.',
+                                    'Revisa las tarjetas superiores (Total, Confirmadas, Asiste, Anuladas, Finalizadas) para un resumen rápido.',
+                                    'Usa el menú de acciones de cada fila para cambiar el estado de asistencia de una cita.',
+                                    'Presiona "Fichas Clínicas" para ir directo al historial médico del paciente.',
+                                ],
+                            }}
+                            className="flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                         />
                         </div>
                     </div>
