@@ -123,7 +123,7 @@ export default function RootLayout({ children }) {
             </AnimatedLayout>
         </AgendaProvider>
 
-        {/* Aviso de "sin conexión" global: vive fuera de AnimatedLayout para que
+        {/* importante: Aviso de "sin conexión" global: vive fuera de AnimatedLayout para que
             no se remonte al navegar y pueda aparecer en cualquier ruta. */}
         <OverlaySinConexion />
 
