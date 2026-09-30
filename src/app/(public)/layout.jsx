@@ -11,7 +11,7 @@ export default function PublicLayout({ children }) {
       <ObjetoPagarProvider>
         <link rel="preload" as="image" href="/bg-hero-v17.webp" fetchPriority="high" />
         <div className="group relative min-h-screen bg-slate-50 text-slate-900 font-system-apple">
-          {/* Fondo base — capa fija única, no se mueve con el scroll */}
+          {/* Fondo base — capa fija única, no se mueve con el scroll atención con esto... */}
           <div
             className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center group-has-[#inicio]:hidden"
             style={{ backgroundImage: "url('/bg-hero-v17.webp')" }}
