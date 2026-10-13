@@ -286,7 +286,7 @@ export default function CalendarioMensualHoras() {
      * Genera los bloques de atención para el día seleccionado.
      *
      * Reglas:
-     *  - Lunes a Sábado, 09:00 – 22:00.
+     *  - Lunes a Domingo, 09:00 – 22:00.
      *  - Duración de cada bloque = duracionMinutos (configurado en tarifaServicio).
      *  - Es UNA sola cadena consecutiva (nunca dos horarios simultáneos que se
      *    solapen): arranca en 09:00 y avanza de a `dur` minutos. Si el siguiente
@@ -302,7 +302,6 @@ export default function CalendarioMensualHoras() {
      */
     const attentionSlots = useMemo(() => {
         if (!fechaSeleccionada || !servicioActivo) return [];
-        if (fechaSeleccionada.getDay() === 0) return []; // domingo cerrado
 
         const inicio = 9 * 60;   // 09:00 en minutos
         const fin    = 22 * 60;  // 22:00 en minutos
@@ -428,13 +427,6 @@ export default function CalendarioMensualHoras() {
         // fecha-ok: `fecha` ya es un Date del calendario, aqui solo se clona.
         const dia = new Date(fecha); dia.setHours(0, 0, 0, 0);
         if (dia < hoy) { toast.error("No puedes agendar en fechas pasadas"); return; }
-        if (fecha.getDay() === 0) {
-            toast.error("No hay atención los días domingo.", {
-                duration: 4000,
-                style: {background: "#FEE2E2", color: "#991B1B", border: "1px solid #FCA5A5"},
-            });
-            return;
-        }
         setFechaSeleccionada(fecha);
         const ymd = formatDateToYMD(fecha);
         if (horaInicio) {
@@ -700,9 +692,8 @@ export default function CalendarioMensualHoras() {
                                 const hoy = new Date(); hoy.setHours(0,0,0,0);
                                 const d   = new Date(dia); d.setHours(0,0,0,0);
                                 const pasado   = d < hoy;
-                                const domingo  = dia.getDay() === 0;
                                 const bloqueado= diasBloqueados.has(formatDateToYMD(dia));
-                                const disabled = pasado || domingo || bloqueado;
+                                const disabled = pasado || bloqueado;
                                 const selected = fechaSeleccionada?.toDateString() === dia.toDateString();
 
                                 return (
@@ -712,7 +703,7 @@ export default function CalendarioMensualHoras() {
                                         onClick={() => { if (!disabled) seleccionarFecha(dia); }}
                                         className={
                             "h-10 flex items-center justify-center rounded-md text-sm font-medium transition relative focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-1 " +
-                                            (pasado || domingo
+                                            (pasado
                                                 ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-300 opacity-50"
                                                 : bloqueado
                                                     ? "cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400"

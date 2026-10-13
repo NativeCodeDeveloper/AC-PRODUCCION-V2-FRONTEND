@@ -114,6 +114,7 @@ const routeMatchersByRole = {
     /^\/dashboard\/recetaLentes$/,
     /^\/dashboard\/examenDocumento$/,
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/presupuestoTratamiento$/,
     /^\/dashboard\/ingresoProductos$/,
     /^\/dashboard\/categoriasProductos$/,
@@ -248,6 +249,7 @@ const routeMatchersByRole = {
     /^\/dashboard\/examenDocumento$/,
     /^\/dashboard\/examenesClinicos$/,
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/presupuestoTratamiento$/,
     /^\/dashboard\/ingresoProductos$/,
     /^\/dashboard\/categoriasProductos$/,
@@ -293,6 +295,7 @@ const routeMatchersByRole = {
     /^\/dashboard\/FichasPacientes\/[^/]+$/,
     /^\/dashboard\/NuevaFicha\/[^/]+$/,
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/recetaPacientes\/[^/]+$/,
   ],
   configuracion: [
@@ -338,6 +341,7 @@ const routeDenyMatchersByRole = {
     /^\/dashboard\/ingresoProductos$/,
     /^\/dashboard\/NuevaFicha\/[^/]+$/,
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/recetaPacientes\/[^/]+$/,
     /^\/dashboard\/recetaRapida$/,
     /^\/dashboard\/recetaLentes$/,
@@ -366,6 +370,7 @@ const routeDenyMatchersByRole = {
   ],
   "clinico-medico": [
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/edicionPlantillaEspecifica\/[^/]+$/,
     /^\/dashboard\/ingresoProductos$/,
     /^\/dashboard\/recetaLentes$/,
@@ -377,6 +382,7 @@ const routeDenyMatchersByRole = {
   ],
   oftalmologia: [
     /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+    /^\/dashboard\/periodontogramaPaciente$/,
     /^\/dashboard\/ingresoProductos$/,
     /^\/dashboard\/categoriasProductos$/,
     /^\/dashboard\/edicionPlantillaEspecifica\/[^/]+$/,
@@ -423,6 +429,7 @@ const DASHBOARD_NAV_SECTIONS = [
     items: [
       { label: "Listado de Pacientes", href: "/dashboard/listaPacientes", icon: "users" },
       { label: "Ficha Clínica", href: "/dashboard/FichaClinica", icon: "fileText" },
+      { label: "Periodontograma", href: "/dashboard/periodontogramaPaciente", icon: "fileText" },
     ],
   },
   {
