@@ -1304,11 +1304,13 @@ function CalendarioContent() {
 
             if (fechaInicio === fechaFinalizacion) {
                 const nombreProfesional = obtenerNombreProfesionalParaEnvio(id_profesional);
+
                 if (!nombreProfesional) {
                     toast.error("No fue posible identificar el profesional seleccionado. Vuelve a seleccionar la agenda.");
                     return false;
                 }
-                const res = await fetch(`${API}/reservaPacientes/insertarReservasMultiples`, {
+
+                const res = await fetch(`${API}/reservaPacientes/insertar`, {
                     method: "POST",
                     headers: { Accept: "application/json", "Content-Type": "application/json" },
                     mode: "cors",
