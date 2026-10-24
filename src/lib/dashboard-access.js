@@ -3,6 +3,7 @@ const DASHBOARD_ROLES = [
   "admin",
   "super-usuario-nativecode",
   "administrador-clinico",
+  "administrador-odontologico",
   "operador-clinico",
   "operador-medico",
   "operador-odontologico",
@@ -320,6 +321,11 @@ const routeMatchersByRole = {
     /^\/dashboard\/examenesClinicos$/,
   ],
 };
+
+routeMatchersByRole["administrador-odontologico"] = [
+  ...routeMatchersByRole["administrador-clinico"],
+  /^\/dashboard\/odontogramasPaciente\/[^/]+$/,
+];
 
 const routeDenyMatchersByRole = {
   cancelado: [
@@ -786,6 +792,23 @@ const DASHBOARD_ROLE_DETAILS = {
   },
 };
 
+const administradorClinicoDetails = DASHBOARD_ROLE_DETAILS["administrador-clinico"];
+DASHBOARD_ROLE_DETAILS["administrador-odontologico"] = {
+  ...administradorClinicoDetails,
+  label: "Administrador Odontológico",
+  description: "Administra la operación clínica y puede consultar, crear y editar odontogramas.",
+  recommendedFor: "Encargados de clínicas odontológicas con responsabilidades administrativas y clínicas.",
+  access: [
+    ...administradorClinicoDetails.access,
+    "Consultar, crear y editar odontogramas de pacientes.",
+  ],
+  restrictions: [
+    "No puede crear usuarios ni asignar perfiles.",
+    "No accede a receta de lentes ni periodontograma.",
+    "No administra stock, pedidos, cupones ni plantillas clínicas generales.",
+  ],
+};
+
 function normalizeDashboardRole(input) {
   const raw = String(input || "").trim().toLowerCase();
 
@@ -940,12 +963,12 @@ function getDashboardRoleFromUser(user) {
 
 function canAccessOdontograma(role) {
   const normalizedRole = normalizeDashboardRole(role);
-  return hasFullDashboardAccess(role) || ["odontologico", "operador-odontologico"].includes(normalizedRole);
+  return hasFullDashboardAccess(role) || ["odontologico", "operador-odontologico", "administrador-odontologico"].includes(normalizedRole);
 }
 
 function canAccessRecetasEnFicha(role) {
   const normalizedRole = normalizeDashboardRole(role);
-  return hasFullDashboardAccess(role) || ["administrador-clinico", "operador-medico", "operador-odontologico", "clinico-medico", "odontologico", "oftalmologia", "agenda"].includes(normalizedRole);
+  return hasFullDashboardAccess(role) || ["administrador-clinico", "administrador-odontologico", "operador-medico", "operador-odontologico", "clinico-medico", "odontologico", "oftalmologia", "agenda"].includes(normalizedRole);
 }
 
 function canAccessFichasClinicas(role) {

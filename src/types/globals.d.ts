@@ -7,6 +7,7 @@ declare global {
         | "admin"
         | "super-usuario-nativecode"
         | "administrador-clinico"
+        | "administrador-odontologico"
         | "operador-clinico"
         | "operador-medico"
         | "operador-odontologico"

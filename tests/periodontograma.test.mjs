@@ -222,11 +222,13 @@ test("PRA no asigna riesgo bajo a un examen incompleto", () => {
     assert.equal(riesgoPeriodontal(examen).categoria, "Alto");
 });
 test("periodontograma mantiene la misma política de acceso que odontograma", () => {
-    for (const rol of [...DASHBOARD_ROLES, null, "", "desconocido", " ODONTOLOGICO "]) {
+    for (const rol of [...DASHBOARD_ROLES.filter((valor) => valor !== "administrador-odontologico"), null, "", "desconocido", " ODONTOLOGICO "]) {
         assert.equal(canAccessDashboardPath(rol, "/dashboard/periodontogramaPaciente"), canAccessDashboardPath(rol, "/dashboard/odontogramasPaciente/123"), `Paridad para rol ${rol}`);
     }
     assert.equal(canAccessDashboardPath("secretaria", "/dashboard/periodontogramaPaciente"), false);
     assert.equal(canAccessDashboardPath("operador-medico", "/dashboard/periodontogramaPaciente"), false);
+    assert.equal(canAccessDashboardPath("administrador-odontologico", "/dashboard/periodontogramaPaciente"), false);
+    assert.equal(canAccessDashboardPath("administrador-odontologico", "/dashboard/odontogramasPaciente/123"), true);
     assert.equal(canAccessDashboardPath("operador-odontologico", "/dashboard/periodontogramaPaciente"), true);
     assert.ok(getVisibleDashboardSections("operador-odontologico").some(seccion => seccion.items.some(item => item.href === "/dashboard/periodontogramaPaciente")));
 });
